@@ -36,11 +36,10 @@
     <RelativeLayout android:id="@+id/left_drawer"
         android:layout_width="240dp"
         android:layout_height="match_parent"
-	android:layout_gravity="start"
+		android:layout_gravity="start"
     	android:orientation="vertical"
         android:background="@color/black">
     		    <!--android:layout_gravity="start" -->
-
         <TextView
             android:id="@+id/textView1"
             android:layout_width="wrap_content"
@@ -116,8 +115,17 @@
             android:layout_height="35dp"
             android:layout_alignLeft="@+id/button2"
             android:layout_alignParentBottom="true"
-            android:layout_marginBottom="37dp"
+            android:layout_marginBottom="43dp"
             android:text="搜尋路點" />
+
+        <Button
+            android:id="@+id/button4"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="35dp"
+            android:layout_above="@+id/button3"
+            android:layout_alignLeft="@+id/button3"
+            android:text="選擇路點" />
        
     </RelativeLayout>
     
