@@ -158,7 +158,7 @@ var markerArrayt=[];
 					icon: icon_t
             });
 							
-			var hml='<p>'+tle+'</p><br/><button onclick="">選擇</button>';
+			var hml='<p>'+tle+'</p><br/><button onclick="myFunc('+rec+')">選擇</button>';
 
 			attachInstructionText(marker_temp0,hml);
 
@@ -166,11 +166,6 @@ var markerArrayt=[];
 							
 		 }
 		 
-		for(i=0;i<markerArrayt.length;i++)
-		{
-			markerArrayt[i].setAnimation(google.maps.Animation.BOUNCE);
-			
-		}
 
 	}
 	
@@ -182,6 +177,191 @@ var markerArrayt=[];
       stepDisplay.open(map, markerr);
     });
   }
+  
+  function myFunc(bbbd)
+  {
+	  window.android.chooseByRec(bbbd);
+	   setTimeout(function(){stepDisplay.close();},100);
+  }
+  
+  
+  function invibleRPmarkers()
+{
+	if(marker_s!=null)
+	{
+		marker_s.setMap(null);
+	}
+
+	if(marker_e!=null)
+	{
+		marker_e.setMap(null);
+	}
+
+	for(i=0;i<markerArrayt.length;i++)
+	{
+		markerArrayt[i].setMap(null);
+	}
+}
+
+function showRPmarkers()
+{
+	marker_s.setMap(map);
+
+	marker_e.setMap(map);
+
+		for(i=0;i<markerArrayt.length;i++)
+		{
+			markerArrayt[i].setMap(map);
+		}
+		
+}
+
+function killRPmarkers()
+{
+		
+		for(i=0;i<markerArrayt.length;i++)
+		{
+			markerArrayt[i].setMap(null);
+		}
+		markerArrayt=[];
+}
+
+function route(ctr)
+{
+	var wayPnts=[];
+	var wptSend=[];
+	var wptTitle=[];
+	var request;
+	
+	
+	
+	for(i=0;i<ctr;i++){
+		var localFlag=window.android.getRPChosen(i);
+		if(localFlag==1)
+		{
+			var localLocation=window.android.getRPLocation(i);
+			wayPnts.push(localLocation);
+			var localTitle=window.android.getRPTitle(i);
+			wptTitle.push(localTitle);
+		}
+	}
+	
+	 if(wayPnts.length==0){
+	    request = {
+                origin:addr_s,
+                destination:addr_e,
+				optimizeWaypoints: true,
+                travelMode: google.maps.TravelMode.WALKING
+        };
+
+	 }else if(wayPnts.length>0){
+		   for(i=0;i<wayPnts.length;i++)
+		   {
+			   var xx;
+			   var aa;
+			   var bb;
+			   var cc;
+
+			   xx=wayPnts[i].split(",");
+			   aa=xx[0];
+			   bb=xx[1];
+
+			   cc=new google.maps.LatLng(aa,bb);
+
+			   wptSend.push({
+          		location:cc,
+          		stopover:true});
+		   }
+
+		    request = {
+                origin: addr_s,
+                destination:addr_e,
+				waypoints: wptSend,
+				optimizeWaypoints: true,
+                travelMode: google.maps.TravelMode.WALKING
+            };
+	 }
+	 
+	 
+	 
+	 directionsService.route(request, function(response, status) {
+		 
+		  if (status == google.maps.DirectionsStatus.OK) {
+			  
+			  if(directionsDisplay!=null)
+			  {
+					directionsDisplay.setMap(null);
+			  }
+			  
+			  var rendererOptions = {
+  							map: map,
+  							suppressMarkers : true
+			  }
+			  
+			  directionsDisplay = new google.maps.DirectionsRenderer(rendererOptions);
+			  directionsDisplay.setMap(map);
+              directionsDisplay.setDirections(response);
+			  
+			  for(p=0;p<markerArray.length;p++)
+			  {
+					markerArray[p].setMap(null);
+			  }
+			  markerArray=[];
+			  
+			 
+			  
+			  invibleRPmarkers();
+			  
+			  var icon_s="https://chart.googleapis.com/chart?chst=d_map_pin_icon&chld=star|FF0000|000000";
+			  var icon_e="https://chart.googleapis.com/chart?chst=d_map_pin_icon&chld=flag|FF0000|000000";
+			  var icon_f="https://chart.googleapis.com/chart?chst=d_map_pin_icon&chld=glyphish_walk|6aad32|000000";
+
+			  var marker_temp_s = new google.maps.Marker({
+                  position: sp,
+                  map: map,
+                  icon: icon_s
+              });
+
+			  attachInstructionText(marker_temp_s, addr_s);
+
+			  var marker_temp_e = new google.maps.Marker({
+                  position: ep,
+                  map: map,
+                  icon: icon_e
+              });
+
+			  attachInstructionText(marker_temp_e, addr_e);
+
+			  markerArray.push(marker_temp_s);
+			  markerArray.push(marker_temp_e);
+			  
+			  for(k=0;k<wayPnts.length;k++)
+			  {
+					var xxx=wayPnts[k].split(",");
+			        var aaa=xxx[0];
+			        var bbb=xxx[1];
+
+			        var ccc=new google.maps.LatLng(aaa,bbb);
+
+					var marker_temp= new google.maps.Marker({
+                        position: ccc,
+                        map: map,
+                        icon: icon_f
+                    });
+
+					var wedf=wptTitle[k].replace(/#/g, "<br/><br/>#");
+				    wedf=wedf.replace(/&/g, "<br/><br/>");
+							 
+					attachInstructionText(marker_temp,wedf);
+
+				    markerArray.push(marker_temp);
+
+			  }
+			  
+		  }
+	});
+	
+}
   
 </script>
 </head>

@@ -51,6 +51,7 @@ public class MainActivity extends Activity{
 	private Button endLBtn;
 	private Button findRoadPointBtn;
 	private Button chooseRoadPointBtn;
+	private Button rdmBtn;
 	private LocationManager Lmgr;
 	private String bestLocationProvider;
 	private EditText startLocation;
@@ -72,6 +73,8 @@ public class MainActivity extends Activity{
 	private List<Integer> roadPointLocationChosen;
 	private List<String> roadPointTitle;
 	private AlertDialog.Builder builder;
+	private int cancelflag=0;
+	private int goflag=0;
 
 	
 	
@@ -88,6 +91,7 @@ public class MainActivity extends Activity{
         endLBtn=(Button)findViewById(R.id.button2);
         findRoadPointBtn=(Button)findViewById(R.id.button3);
         chooseRoadPointBtn=(Button)findViewById(R.id.button4);
+        rdmBtn=(Button)findViewById(R.id.button5);
         
 	    
        
@@ -179,9 +183,134 @@ public class MainActivity extends Activity{
         	});
         
         
+        chooseRoadPointBtn.setOnClickListener(new Button.OnClickListener(){
+        	@Override
+        	public void onClick(View v) {
+        		
+        		int a;
+        		String[] temp = new String[roadPointTitle.size()];
+        		for(a=0;a<roadPointTitle.size();a++)
+				{
+        			temp[a]=roadPointTitle.get(a);
+				}
+        		boolean[] temp2 = new boolean[roadPointLocationChosen.size()];
+        		for(a=0;a<roadPointLocationChosen.size();a++)
+				{
+        			if(roadPointLocationChosen.get(a)==0)
+        				temp2[a]=false;
+        			else
+        				temp2[a]=true;
+				}
+        	
+        		builder = new AlertDialog.Builder(MainActivity.this);
+        		builder.setMultiChoiceItems(temp, temp2,
+        		new DialogInterface.OnMultiChoiceClickListener() {
+        			public void onClick(DialogInterface dialog, int whichButton,boolean isChecked) {
+        					if(isChecked) {
+        						int o;
+        						int localCtr=0;
+        						roadPointLocationChosen.set(whichButton,1);
+        						
+        						for(o=0;o<roadPointLocationChosen.size();o++)
+        						{
+        							if(roadPointLocationChosen.get(o)==1)
+        							{
+        								localCtr++;
+        							}
+        						}
+        						
+        						if(localCtr==6)
+        						{
+        							chooseRoadPointBtn.setEnabled(false);
+        							Toast.makeText(MainActivity.this,"已達上限", 100).show();
+        							dialog.cancel();
+        						}
+        						
+        					}else {
+        						roadPointLocationChosen.set(whichButton,0);
+        					}
+        					 
+        			}
+        		});
+        		
+        		builder.setPositiveButton("確定", new DialogInterface.OnClickListener() {
+        			public void onClick(DialogInterface dialog, int whichButton) {
+        				//Toast.makeText(MainActivity.this,"aaa", 100).show();  
+        			}
+        		});
+        			
+        		builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+        			public void onClick(DialogInterface dialog, int whichButton) {
+        			 
+        			}
+        		});
+        			
+        		builder.create().show();
+
+        	}
+        });
+		
+		rdmBtn.setOnClickListener(new Button.OnClickListener(){
+        	@Override
+        	public void onClick(View v) {
+        		final int rngMax=roadPointTitle.size();
+        		final int crr;
+        		int tyu;
+        		int flg;
+        		int j;
+        		final List<Integer> haha=new ArrayList<Integer>();
+
+        		if(rngMax>0)
+        		{
+        			if(rngMax<5)
+        			{
+        				crr=(int)(Math.random()*rngMax+1);
+        			}else
+        			{
+        				crr=(int)(Math.random()*5+1);
+        			}
+
+        			int hgh=0;
+
+        			while(hgh<crr)
+        			{
+        				tyu=(int)(Math.random()*rngMax+1);
+        				flg=0;
+        				for(j=0;j<haha.size();j++)
+        				{
+        				   if(tyu==haha.get(j))
+        				   {
+        					   flg=1;
+        				   }
+        				}
+        				if(flg!=1)
+        				{
+
+        				  haha.add(tyu);
+        				  hgh++;
+        				}
+        			}
+
+        			for(j=0;j<roadPointLocationChosen.size();j++)
+        			{
+        				roadPointLocationChosen.set(j,0);
+        				
+        		    }
+
+        			for(j=0;j<haha.size();j++)
+        			{
+        				roadPointLocationChosen.set(haha.get(j)-1,1);
+        				
+        		    }
+        			
+        			chooseRoadPointBtn.setEnabled(true);
+
+        		}
+        		
+        	}});
         
-        
-        
+		chooseRoadPointBtn.setEnabled(false);
+		rdmBtn.setEnabled(false);
     }
     
 	
@@ -221,14 +350,58 @@ public class MainActivity extends Activity{
 
 	        layDrawer.setDrawerListener(drawerToggle);
 	    }
-	    
+	     
 	    public boolean onOptionsItemSelected(MenuItem item) {
 	       
 	        if (drawerToggle.onOptionsItemSelected(item)) {
 	          return true;
+	        }else {
+	        	
+	        	switch (item.getItemId()) {
+	        		case R.id.cancel:
+	        			cancelByflag();
+	        			return true;
+	        		case R.id.go:
+	        			goByflag();
+	        			return true;
+	        		default:
+	        			return super.onOptionsItemSelected(item);
+	        	}
 	        }
-	        return super.onOptionsItemSelected(item);
+	        
 	    }
+	    
+	    public boolean onCreateOptionsMenu(Menu menu) {  
+	        MenuInflater inflater = getMenuInflater();  
+	        inflater.inflate(R.menu.options_menu, menu);  
+	        return super.onCreateOptionsMenu(menu);  
+	    }  
+	    
+	    public void cancelByflag() {  
+	        
+	    }  
+	    
+	    public void goByflag() {  
+	       
+	    	/*runOnUiThread(new Runnable() {
+	            public void run() {
+	            	mWebView.loadUrl("javascript:alert('"+goflag+"')");
+	           }
+	       });*/
+	    	
+	    	
+	    	if(goflag==1)
+	    	{
+	    		runOnUiThread(new Runnable() {
+		            public void run() {
+		            	mWebView.loadUrl("javascript:route("+roadPointLocation.size()+")");
+		           }
+		       });
+	    		
+	    		
+	    	}
+	    }  
+	    
 
 	    
 	    public void httpPost(final String postUrl,final List<NameValuePair> params,final int postFlag){
@@ -328,63 +501,28 @@ public class MainActivity extends Activity{
 							}
 							
 							
-							chooseRoadPointBtn.setOnClickListener(new Button.OnClickListener(){
-					        	@Override
-					        	public void onClick(View v) {
-					        		
-					        		int a;
-					        		String[] temp = new String[roadPointTitle.size()];
-					        		for(a=0;a<roadPointTitle.size();a++)
-									{
-					        			temp[a]=roadPointTitle.get(a);
-									}
-					        		boolean[] temp2 = new boolean[roadPointLocationChosen.size()];
-					        		for(a=0;a<roadPointLocationChosen.size();a++)
-									{
-					        			if(roadPointLocationChosen.get(a)==0)
-					        				temp2[a]=false;
-					        			else
-					        				temp2[a]=true;
-									}
-					        	
-					        		builder = new AlertDialog.Builder(MainActivity.this);
-					        		builder.setMultiChoiceItems(temp, temp2,
-					        		new DialogInterface.OnMultiChoiceClickListener() {
-					        			public void onClick(DialogInterface dialog, int whichButton,boolean isChecked) {
-					        					if(isChecked) {
-					        						roadPointLocationChosen.set(whichButton,1);
-					        					}else {
-					        						roadPointLocationChosen.set(whichButton,0);
-					        					}
-					        					 
-					        			}
-					        		});
-					        		
-					        		builder.setPositiveButton("確定", new DialogInterface.OnClickListener() {
-					        			public void onClick(DialogInterface dialog, int whichButton) {
-					        				Toast.makeText(MainActivity.this,"aaa", 100).show();  
-					        			}
-					        		});
-					        			
-					        		builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-					        			public void onClick(DialogInterface dialog, int whichButton) {
-					        			 
-					        			}
-					        		});
-					        			
-					        		builder.create().show();
-		
-					        	}
-					        });
 							
-
+							
 							runOnUiThread(new Runnable() {
 					            public void run() {
+					            	chooseRoadPointBtn.setEnabled(true);
+									rdmBtn.setEnabled(true);
+									mWebView.loadUrl("javascript:killRPmarkers()");
 					            	mWebView.loadUrl("javascript:setMarkers("+roadPointLocation.size()+")");
 					           }
 					       });
 							
 								
+	    			}else{
+	    				
+	    				runOnUiThread(new Runnable() {
+				            public void run() {
+				            	chooseRoadPointBtn.setEnabled(false);
+								rdmBtn.setEnabled(false);
+								mWebView.loadUrl("javascript:killRPmarkers()");
+				           }
+				       });
+	    				
 	    			}
 	    		} catch (JSONException e) {
 	    			e.printStackTrace();
@@ -438,6 +576,7 @@ public class MainActivity extends Activity{
 	    	postData(0);
 	    	
 	    	findRoadPointBtnFlag=0;
+	    	goflag=1;
 	     }
 	    
 	    @JavascriptInterface
@@ -459,6 +598,55 @@ public class MainActivity extends Activity{
 	    	
 	    	return localS;
 	    }
+	    
+	    @JavascriptInterface
+	    public String getRPChosen(final String pos)
+	    {
+	    	
+	    	int intValue=Integer.valueOf(pos);
+	    	final String localS=Integer.toString(roadPointLocationChosen.get(intValue));
+	    	
+	    	return localS;
+	    }
+	    
+	    @JavascriptInterface
+	    public void chooseByRec(int Rec)
+	    {
+	    	 int flagGG=0;
+	    	 int chosenCtr=0;
+	    	 int j;
+	    	
+	    	if(roadPointLocationChosen.get(Rec)==1)
+	    	{
+	    		flagGG=1;
+	    		Toast.makeText(MainActivity.this,"重複選擇囉", 100).show();
+	    	}
+	    	
+	    	for(j=0;j<roadPointLocationChosen.size();j++)
+			{
+				if(roadPointLocationChosen.get(j)==1)
+				{
+					chosenCtr++;
+				}
+		    }
+	    	
+	    	if((flagGG==0)&&(chosenCtr<6)){
+	    		roadPointLocationChosen.set(Rec,1);
+	    		Toast.makeText(MainActivity.this,"已選擇", 100).show();
+	    		chosenCtr++;
+	    		   
+	    		if(chosenCtr==6)
+	    		{
+	    			Toast.makeText(MainActivity.this,"已達上限", 100).show();
+	    		}
+	    	}
+	    	else if((flagGG==0)&&(chosenCtr==6)){
+	    		Toast.makeText(MainActivity.this,"已達上限", 100).show();
+	    	}
+	     }
+	    
+	    
+	    
 
 }
 

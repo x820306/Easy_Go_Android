@@ -1071,9 +1071,12 @@ containing a value of this type.
         public static final int abc_textfield_searchview_holo_light=0x7f020054;
         public static final int abc_textfield_searchview_right_holo_dark=0x7f020055;
         public static final int abc_textfield_searchview_right_holo_light=0x7f020056;
-        public static final int drawer_shadow=0x7f020057;
-        public static final int ic_drawer=0x7f020058;
-        public static final int ic_launcher=0x7f020059;
+        public static final int cross=0x7f020057;
+        public static final int cross2=0x7f020058;
+        public static final int drawer_shadow=0x7f020059;
+        public static final int ic_drawer=0x7f02005a;
+        public static final int ic_launcher=0x7f02005b;
+        public static final int p2_2=0x7f02005c;
     }
     public static final class id {
         public static final int LinearLayoutBottom=0x7f05003f;
@@ -1096,6 +1099,8 @@ containing a value of this type.
         public static final int button2=0x7f050046;
         public static final int button3=0x7f050047;
         public static final int button4=0x7f050048;
+        public static final int button5=0x7f050049;
+        public static final int cancel=0x7f05004a;
         public static final int checkbox=0x7f05002d;
         public static final int collapseActionView=0x7f05000d;
         public static final int default_activity_button=0x7f050028;
@@ -1109,6 +1114,7 @@ containing a value of this type.
         public static final int end=0x7f050013;
         public static final int expand_activities_button=0x7f050026;
         public static final int expanded_menu=0x7f05002c;
+        public static final int go=0x7f05004b;
         public static final int home=0x7f050014;
         public static final int homeAsUp=0x7f050005;
         public static final int icon=0x7f05002a;
@@ -1202,6 +1208,9 @@ containing a value of this type.
         public static final int abc_simple_decor=0x7f030017;
         public static final int activity_main=0x7f030018;
         public static final int support_simple_spinner_dropdown_item=0x7f030019;
+    }
+    public static final class menu {
+        public static final int options_menu=0x7f0c0000;
     }
     public static final class string {
         /**  Content description for the action bar "home" affordance. [CHAR LIMIT=NONE] 
