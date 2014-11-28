@@ -35,6 +35,8 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;  
 import java.util.List; 
+import java.util.Timer;
+import java.util.TimerTask;
 import java.io.IOException;  
 import java.io.UnsupportedEncodingException;  
 
@@ -52,11 +54,17 @@ public class MainActivity extends Activity{
 	private Button findRoadPointBtn;
 	private Button chooseRoadPointBtn;
 	private Button rdmBtn;
+	private Button timerBtn;
 	private LocationManager Lmgr;
+	private LocationManager Lmgr2;
 	private String bestLocationProvider;
+	private String bestLocationProvider2;
 	private EditText startLocation;
 	private EditText endLocation;
+	private TextView leftInfoText;
+	private TextView rightInfoText;
 	private LocationListener locationListener;
+	private LocationListener locationListener2;
 	private String Lat;
 	private String Lon;
 	private String LatE;
@@ -67,6 +75,8 @@ public class MainActivity extends Activity{
 	private String centerlg;
 	private String startAddress;
 	private String endAddress;
+	private String tDistance;
+	private String tDuration;
 	private int seFlag;
 	private int findRoadPointBtnFlag=0;
 	private List<String> roadPointLocation;
@@ -75,6 +85,9 @@ public class MainActivity extends Activity{
 	private AlertDialog.Builder builder;
 	private int cancelflag=0;
 	private int goflag=0;
+	private int timerBtnFlag=0;
+	private int totalSec=0;
+	private Timer timer1;
 
 	
 	
@@ -92,8 +105,9 @@ public class MainActivity extends Activity{
         findRoadPointBtn=(Button)findViewById(R.id.button3);
         chooseRoadPointBtn=(Button)findViewById(R.id.button4);
         rdmBtn=(Button)findViewById(R.id.button5);
-        
-	    
+        timerBtn=(Button)findViewById(R.id.button6);
+        leftInfoText=(TextView)findViewById(R.id.textView3);
+        rightInfoText=(TextView)findViewById(R.id.textView4);
        
         mWebView = (WebView)findViewById(R.id.webView1);
         mWebView.setWebChromeClient(new WebChromeClient());
@@ -101,8 +115,8 @@ public class MainActivity extends Activity{
         mWebView.loadUrl(url); 
         mWebView.addJavascriptInterface(MainActivity.this, "android");
         Lmgr=(LocationManager)getSystemService(LOCATION_SERVICE);
-        Criteria c=new Criteria();
-        bestLocationProvider=Lmgr.getBestProvider(c, true);
+        Lmgr2=(LocationManager)getSystemService(LOCATION_SERVICE);
+       
         locationListener = new LocationListener(){
 
 			@Override
@@ -127,7 +141,8 @@ public class MainActivity extends Activity{
 			@Override
 			public void onProviderDisabled(String provider) {
 				// TODO Auto-generated method stub
-				Lmgr.removeUpdates(this);
+				if(provider.equals( bestLocationProvider)==true)
+					Lmgr.removeUpdates(this);
 			}
 
 			@Override
@@ -140,17 +155,75 @@ public class MainActivity extends Activity{
 			public void onStatusChanged(String provider, int status,
 					Bundle extras) {
 				// TODO Auto-generated method stub
-				Criteria c=new Criteria();
-			    bestLocationProvider=Lmgr.getBestProvider(c, true);
+			}
+        };
+        
+        locationListener2 = new LocationListener(){
+
+			@Override
+			public void onLocationChanged(Location location) {
+				// TODO Auto-generated method stub
+				String LatX=String.valueOf(location.getLatitude());
+				String LonX=String.valueOf(location.getLongitude());
+			
+				mWebView.loadUrl("javascript:currentLocation("+LatX+","+LonX+")");
+			
+			}
+
+			@Override
+			public void onProviderDisabled(String provider) {
+				// TODO Auto-generated method stub
+				if(provider.equals( bestLocationProvider2)==true)
+					Lmgr2.removeUpdates(this);
+			}
+
+			@Override
+			public void onProviderEnabled(String provider) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void onStatusChanged(String provider, int status,
+					Bundle extras) {
+				// TODO Auto-generated method stub
 			}
         };
         
         
+        timerBtn.setOnClickListener(new Button.OnClickListener(){
+        	@Override
+        	public void onClick(View v) {
+        		if(timerBtnFlag==0)
+        		{
+        			timer1=new Timer();
+        			timer1.schedule(new myTask(), 0,1000);
+        			
+        			Criteria c=new Criteria();
+            	    bestLocationProvider2=Lmgr2.getBestProvider(c, true);
+            		Lmgr2.requestLocationUpdates(bestLocationProvider2,0,0,locationListener2);
+        			
+        			timerBtn.setText("Stop");
+        			timerBtnFlag=1;
+        		}else{
+        			timer1.cancel();
+        			timer1.purge();
+        			
+        			Lmgr2.removeUpdates(locationListener2);
+        			mWebView.loadUrl("javascript:killCurrentLocation()");
+        			
+        			timerBtn.setText("Start");
+        			timerBtnFlag=0;
+        		}
+        	}
+        	});
         
         startLBtn.setOnClickListener(new Button.OnClickListener(){
         	@Override
         	public void onClick(View v) {
         		seFlag=0;
+        		Criteria c=new Criteria();
+        	    bestLocationProvider=Lmgr.getBestProvider(c, true);
         		Lmgr.requestLocationUpdates(bestLocationProvider,0,0,locationListener);
         		
         	}
@@ -160,6 +233,8 @@ public class MainActivity extends Activity{
         	@Override
         	public void onClick(View v) {
         		seFlag=1;
+        		Criteria c=new Criteria();
+        	    bestLocationProvider=Lmgr.getBestProvider(c, true);
         		Lmgr.requestLocationUpdates(bestLocationProvider,0,0,locationListener);
         		
         	}
@@ -176,6 +251,9 @@ public class MainActivity extends Activity{
         				findRoadPointBtnFlag=1;
         				startAddress=startLocation.getText().toString();
         				endAddress=endLocation.getText().toString();
+        				
+        				routeKiller();
+        				
         				mWebView.loadUrl("javascript:frp('"+startAddress+"','"+endAddress+"')");
         			}
         		
@@ -233,7 +311,7 @@ public class MainActivity extends Activity{
         			}
         		});
         		
-        		builder.setPositiveButton("確定", new DialogInterface.OnClickListener() {
+        		/*builder.setPositiveButton("確定", new DialogInterface.OnClickListener() {
         			public void onClick(DialogInterface dialog, int whichButton) {
         				//Toast.makeText(MainActivity.this,"aaa", 100).show();  
         			}
@@ -243,7 +321,7 @@ public class MainActivity extends Activity{
         			public void onClick(DialogInterface dialog, int whichButton) {
         			 
         			}
-        		});
+        		});*/
         			
         		builder.create().show();
 
@@ -311,6 +389,7 @@ public class MainActivity extends Activity{
         
 		chooseRoadPointBtn.setEnabled(false);
 		rdmBtn.setEnabled(false);
+		timerBtn.setEnabled(false);
     }
     
 	
@@ -378,7 +457,39 @@ public class MainActivity extends Activity{
 	    }  
 	    
 	    public void cancelByflag() {  
-	        
+	    	if(cancelflag==1)
+	    	{
+	    		int a;
+	    		for(a=0;a<roadPointLocationChosen.size();a++)
+				{
+					roadPointLocationChosen.set(a,0);
+				}
+	    		
+	    		runOnUiThread(new Runnable() {
+		            public void run() {
+		            	chooseRoadPointBtn.setEnabled(true);
+		            }
+		        });
+	    	}else if(cancelflag==2)
+	    	{
+	    		routeKiller();
+	    		
+	    		int a;
+	    		for(a=0;a<roadPointLocationChosen.size();a++)
+				{
+					roadPointLocationChosen.set(a,0);
+				}
+	    		
+	    		runOnUiThread(new Runnable() {
+		            public void run() {
+		            	mWebView.loadUrl("javascript:showRPmarkers()");
+		            	chooseRoadPointBtn.setEnabled(true);
+		            }
+		        });
+	    		
+	    		cancelflag=1;
+	    		
+	    	}  
 	    }  
 	    
 	    public void goByflag() {  
@@ -394,7 +505,20 @@ public class MainActivity extends Activity{
 	    	{
 	    		runOnUiThread(new Runnable() {
 		            public void run() {
+		            	if(timerBtnFlag==1){
+		            		timer1.cancel();
+		        			timer1.purge();
+		        			Lmgr2.removeUpdates(locationListener2);
+		        			
+		        			timerBtn.setText("Start");
+		        	    	
+		        	    	timerBtnFlag=0;
+		        	    	
+		        	    	mWebView.loadUrl("javascript:killCurrentLocation()");
+		            	}
+		            	totalSec=0;
 		            	mWebView.loadUrl("javascript:route("+roadPointLocation.size()+")");
+		            	
 		           }
 		       });
 	    		
@@ -544,6 +668,28 @@ public class MainActivity extends Activity{
 	    	
 	    }
 	    
+	    public void routeKiller(){
+	    	runOnUiThread(new Runnable() {
+	            public void run() {
+	            	if(timerBtnFlag==1){
+	            		timer1.cancel();
+	        			timer1.purge();
+	        			Lmgr2.removeUpdates(locationListener2);
+	        			
+	        			timerBtn.setText("Start");
+	        	    	timerBtnFlag=0;
+	        	    	
+	        	    	mWebView.loadUrl("javascript:killCurrentLocation()");
+	            	}
+	            	totalSec=0;
+	            	timerBtn.setEnabled(false);
+	            	leftInfoText.setText("");
+	            	rightInfoText.setText("");
+	            	mWebView.loadUrl("javascript:killRoute()");
+	           }
+	       });
+	    }
+	    
 	    
 	    @JavascriptInterface
 	    public void setStartLocation(final String rtn)
@@ -577,6 +723,25 @@ public class MainActivity extends Activity{
 	    	
 	    	findRoadPointBtnFlag=0;
 	    	goflag=1;
+	    	cancelflag=1;
+	     }
+	    
+	    @JavascriptInterface
+	    public void routeReturn(final String distance,final String duration)
+	    {
+	    	tDistance=distance;
+	    	tDuration=duration;
+	    	cancelflag=2;
+	    	
+	    	runOnUiThread(new Runnable() {
+            public void run() {
+            	leftInfoText.setText(distance+"公里\n"+duration+"分鐘");
+            	rightInfoText.setText("00:00:00");
+            	timerBtn.setEnabled(true);
+           }
+           });
+	    	
+	    	
 	     }
 	    
 	    @JavascriptInterface
@@ -637,7 +802,11 @@ public class MainActivity extends Activity{
 	    		   
 	    		if(chosenCtr==6)
 	    		{
-	    			Toast.makeText(MainActivity.this,"已達上限", 100).show();
+	    			  runOnUiThread(new Runnable() {
+				            public void run() {
+				            	chooseRoadPointBtn.setEnabled(false);
+				           }
+				       });
 	    		}
 	    	}
 	    	else if((flagGG==0)&&(chosenCtr==6)){
@@ -645,10 +814,62 @@ public class MainActivity extends Activity{
 	    	}
 	     }
 	    
-	    
+	    public class myTask extends TimerTask {
+		    
+		     @ Override
+		      public void run() {
+		    	 totalSec+=1;
+				 int ss=totalSec;
+			     int hh=ss/3600;
+				 ss-=(hh*3600);
+				 int mm=ss/60;
+				 ss-=(mm*60);
+				 
+				 String sString=String.valueOf(ss);
+				 String mString=String.valueOf(mm);
+				 String hString=String.valueOf(hh);
+				 final String sString2;
+				 final String mString2;
+				 final String hString2;
+			
+				 if(hh<10)
+				 {
+					 hString2="0"+hString+":";
+				 }else
+				 {
+					 hString2=hString+":";
+				 }
+
+				 if(mm<10)
+				 {
+					 mString2="0"+mString+":";
+				 }else
+				 {
+					 mString2=mString+":";
+				 }
+
+				  if(ss<10)
+				 {
+					  sString2="0"+sString;
+				 }else
+				 {
+					 sString2=sString;
+				 }
+				  
+				  runOnUiThread(new Runnable() {
+			            public void run() {
+			            	rightInfoText.setText(hString2+mString2+sString2);
+			           }
+			       });
+		     }
+	}
 	    
 
 }
+
+
+
+
 
 
 

@@ -18,9 +18,9 @@
         	 android:layout_width="match_parent"
         	 android:layout_height="0dp"
        		 android:layout_margin="0dp"
-        	 android:layout_weight="12"
+        	 android:layout_weight="11"
         	 android:padding="0dp" />
-    		 <LinearLayout
+    		 <RelativeLayout
         	android:id="@+id/LinearLayoutBottom"
         	android:layout_width="match_parent"
         	android:layout_height="0dp"
@@ -29,7 +29,36 @@
         	android:padding="0dp" 
         	android:orientation="vertical"
         	android:background="@color/black">
-    		</LinearLayout>	
+
+    		     <TextView
+    		         android:id="@+id/textView3"
+    		         android:layout_width="wrap_content"
+    		         android:layout_height="wrap_content"
+    		         android:layout_alignParentLeft="true"
+    		          android:layout_centerVertical="true"
+    		         android:layout_marginLeft="34dp"
+    		         android:textColor="@color/white" />
+
+    		     <TextView
+    		         android:id="@+id/textView4"
+    		         android:layout_width="wrap_content"
+    		         android:layout_height="wrap_content"
+    		         android:layout_alignParentRight="true"
+    		         android:layout_centerVertical="true"
+    		         android:layout_marginRight="34dp"
+    		         android:textColor="@color/white" />
+
+    		     <Button
+    		         android:id="@+id/button6"
+    		         style="?android:attr/buttonStyleSmall"
+    		         android:layout_width="wrap_content"
+    		         android:layout_height="wrap_content"
+    		         android:layout_alignParentTop="true"
+    		         android:layout_centerHorizontal="true"
+    		         android:layout_centerVertical="true"
+    		         android:text="Start" />
+
+    		</RelativeLayout>	
     	</LinearLayout>
 
     <!-- The navigation drawer -->

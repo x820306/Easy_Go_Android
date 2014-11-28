@@ -11,6 +11,7 @@ var directionsDisplay=null;
 var stepDisplay;
 var marker_s=null;
 var marker_e=null;
+var marker_rt=null;
 var sp=null;
 var ep=null;
 var addr_s;
@@ -358,9 +359,70 @@ function route(ctr)
 
 			  }
 			  
+			  var totalDistance = 0;
+   			  var totalDuration = 0;
+              var legs = response.routes[0].legs;
+              for(var i=0; i<legs.length; ++i) {
+                  totalDistance += legs[i].distance.value;
+                  totalDuration += legs[i].duration.value;
+              }
+						 
+			  totalDistance/=1000;
+			  totalDistance=formatFloat(totalDistance,1);
+			  totalDuration/=60;
+			  totalDuration=formatFloat(totalDuration,1);
+			  
+			  window.android.routeReturn(totalDistance,totalDuration);
+			  
 		  }
 	});
 	
+}
+
+function formatFloat(num, pos)
+{
+  var size = Math.pow(10, pos);
+  return Math.round(num * size) / size;
+}
+
+function currentLocation(LatX,LonX){
+	
+	var rt= new google.maps.LatLng(LatX,LonX);
+	map.setCenter(rt);
+	if(marker_rt!=null)
+	{
+		marker_rt.setMap(null);
+
+	}
+	marker_rt = new google.maps.Marker({
+        map: map,
+        position: rt
+    });
+	
+}
+
+function killCurrentLocation(){
+	
+	if(marker_rt!=null)
+	{
+		marker_rt.setMap(null);
+	}
+	
+}
+
+function killRoute(){
+	
+	 if(directionsDisplay!=null)
+	 {
+		directionsDisplay.setMap(null);
+	 }
+	 
+	 
+	 for(p=0;p<markerArray.length;p++)
+	 {
+		markerArray[p].setMap(null);
+	 }
+	 markerArray=[];
 }
   
 </script>
