@@ -12,3 +12,5 @@ Android SDK Platform-tools 19.0.2 &
 
 Android Build-tools 19.1
 
+Link Facebook SDK project & appcompat_v7_2 project to EasyGo project
+
