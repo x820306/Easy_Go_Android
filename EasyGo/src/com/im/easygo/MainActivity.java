@@ -88,12 +88,13 @@ public class MainActivity extends Activity{
 	private int timerBtnFlag=0;
 	private int totalSec=0;
 	private Timer timer1;
+	private String token;
 
 	
 	
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        setContentView(R.layout.activity_main);
         initActionBar();
         initDrawer();
         
@@ -386,10 +387,16 @@ public class MainActivity extends Activity{
         		}
         		
         	}});
+		
+		Bundle bundle=this.getIntent().getExtras();
+
+        token=bundle.getString("token");
         
 		chooseRoadPointBtn.setEnabled(false);
 		rdmBtn.setEnabled(false);
 		timerBtn.setEnabled(false);
+		
+		//Toast.makeText(MainActivity.this, token,100).show();
     }
     
 	
@@ -436,16 +443,16 @@ public class MainActivity extends Activity{
 	          return true;
 	        }else {
 	        	
-	        	switch (item.getItemId()) {
-	        		case R.id.cancel:
-	        			cancelByflag();
-	        			return true;
-	        		case R.id.go:
-	        			goByflag();
-	        			return true;
-	        		default:
-	        			return super.onOptionsItemSelected(item);
-	        	}
+	        	int itemId = item.getItemId();
+				if (itemId == R.id.cancel) {
+					cancelByflag();
+					return true;
+				} else if (itemId == R.id.go) {
+					goByflag();
+					return true;
+				} else {
+					return super.onOptionsItemSelected(item);
+				}
 	        }
 	        
 	    }
