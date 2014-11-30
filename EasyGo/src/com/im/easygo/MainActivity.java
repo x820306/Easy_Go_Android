@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.location.*;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;  
 import android.os.Message;  
@@ -55,6 +56,7 @@ public class MainActivity extends Activity{
 	private Button chooseRoadPointBtn;
 	private Button rdmBtn;
 	private Button timerBtn;
+	private Button saveRouteBtn;
 	private LocationManager Lmgr;
 	private LocationManager Lmgr2;
 	private String bestLocationProvider;
@@ -75,6 +77,8 @@ public class MainActivity extends Activity{
 	private String centerlg;
 	private String startAddress;
 	private String endAddress;
+	private String startLatLng;
+	private String endLatLng;
 	private String tDistance;
 	private String tDuration;
 	private int seFlag;
@@ -82,13 +86,20 @@ public class MainActivity extends Activity{
 	private List<String> roadPointLocation;
 	private List<Integer> roadPointLocationChosen;
 	private List<String> roadPointTitle;
+	private List<String> savedRoadPointLocation;
+	private List<String> savedRoadPointTitle;
 	private AlertDialog.Builder builder;
 	private int cancelflag=0;
 	private int goflag=0;
 	private int timerBtnFlag=0;
 	private int totalSec=0;
 	private Timer timer1;
-	private String token;
+	private String cookie;
+	private String uid;
+	private String savedPath;
+	private int flag;
+	private int flag2;
+	private Bundle bundle;
 
 	
 	
@@ -107,6 +118,7 @@ public class MainActivity extends Activity{
         chooseRoadPointBtn=(Button)findViewById(R.id.button4);
         rdmBtn=(Button)findViewById(R.id.button5);
         timerBtn=(Button)findViewById(R.id.button6);
+        saveRouteBtn=(Button)findViewById(R.id.button7);
         leftInfoText=(TextView)findViewById(R.id.textView3);
         rightInfoText=(TextView)findViewById(R.id.textView4);
        
@@ -217,7 +229,7 @@ public class MainActivity extends Activity{
         			timerBtnFlag=0;
         		}
         	}
-        	});
+        });
         
         startLBtn.setOnClickListener(new Button.OnClickListener(){
         	@Override
@@ -228,7 +240,7 @@ public class MainActivity extends Activity{
         		Lmgr.requestLocationUpdates(bestLocationProvider,0,0,locationListener);
         		
         	}
-        	});
+        });
         
         endLBtn.setOnClickListener(new Button.OnClickListener(){
         	@Override
@@ -239,7 +251,28 @@ public class MainActivity extends Activity{
         		Lmgr.requestLocationUpdates(bestLocationProvider,0,0,locationListener);
         		
         	}
-        	});
+        });
+        
+        saveRouteBtn.setOnClickListener(new Button.OnClickListener(){
+        	@Override
+        	public void onClick(View v) {
+        		if(!uid.equals("null")){
+        			int y;
+        			String path="";
+        			path=path+"{\"land\":\""+startLatLng+"\",\"name\":\""+startAddress+"\"},";
+        			
+        			for(y=0;y<roadPointLocationChosen.size();y++){
+        				if(roadPointLocationChosen.get(y)==1){
+        					path=path+"{\"land\":\""+roadPointLocation.get(y)+"\",\"name\":\""+roadPointTitle.get(y)+"\"},";
+        				}
+        			}
+        			
+        			path=path+"{\"land\":\""+endLatLng+"\",\"name\":\""+endAddress+"\"}";
+        			
+        			new postSaveRoute().execute(path,uid);
+        		}
+        	}
+        });
         
         findRoadPointBtn.setOnClickListener(new Button.OnClickListener(){
         	@Override
@@ -259,7 +292,7 @@ public class MainActivity extends Activity{
         			}
         		
         	}
-        	});
+        });
         
         
         chooseRoadPointBtn.setOnClickListener(new Button.OnClickListener(){
@@ -388,15 +421,21 @@ public class MainActivity extends Activity{
         		
         	}});
 		
-		Bundle bundle=this.getIntent().getExtras();
+		bundle=this.getIntent().getExtras();
 
-        token=bundle.getString("token");
+        cookie=bundle.getString("cookie");
+        uid="null";
         
 		chooseRoadPointBtn.setEnabled(false);
 		rdmBtn.setEnabled(false);
 		timerBtn.setEnabled(false);
+		saveRouteBtn.setEnabled(false);
 		
-		//Toast.makeText(MainActivity.this, token,100).show();
+		 if(!cookie.equals("null")){
+	        	new getAu().execute(cookie);
+	     }
+		
+		
     }
     
 	
@@ -496,6 +535,12 @@ public class MainActivity extends Activity{
 	    		
 	    		cancelflag=1;
 	    		
+	    	}  else if(cancelflag==3)
+	    	{
+	    		routeKiller();
+	    		
+	    		cancelflag=0;
+	    		
 	    	}  
 	    }  
 	    
@@ -545,8 +590,8 @@ public class MainActivity extends Activity{
 						HttpClient client=new DefaultHttpClient();  
 	                    HttpResponse response=client.execute(post);  
 	                    if(response.getStatusLine().getStatusCode()==200){  
-	                        String content=EntityUtils.toString(response.getEntity());     
-	
+	                        final String content=EntityUtils.toString(response.getEntity());     
+	                        
 	                        analysisJSON(content,postFlag);  
 	                    } 
 					} catch (ClientProtocolException e) {  
@@ -690,6 +735,11 @@ public class MainActivity extends Activity{
 	            	}
 	            	totalSec=0;
 	            	timerBtn.setEnabled(false);
+	            	
+	            	if(!uid.equals("null")){
+	            		saveRouteBtn.setEnabled(false);
+	            	}
+	            	
 	            	leftInfoText.setText("");
 	            	rightInfoText.setText("");
 	            	mWebView.loadUrl("javascript:killRoute()");
@@ -719,13 +769,15 @@ public class MainActivity extends Activity{
 	     }
 	    
 	    @JavascriptInterface
-	    public void frpReturn(final String center0,final String rad0,final String centerlt0,final String centerlg0)
+	    public void frpReturn(final String center0,final String rad0,final String centerlt0,final String centerlg0,final String startLoc,final String endLoc)
 	    {
 	    	
 	    	center=center0;
 	    	rad=rad0;
 	    	centerlt=centerlt0;
 	    	centerlg=centerlg0;
+	    	startLatLng=startLoc;
+	    	endLatLng=endLoc;
 	    	postData(0);
 	    	
 	    	findRoadPointBtnFlag=0;
@@ -745,10 +797,26 @@ public class MainActivity extends Activity{
             	leftInfoText.setText(distance+"公里\n"+duration+"分鐘");
             	rightInfoText.setText("00:00:00");
             	timerBtn.setEnabled(true);
+            	
+            	if(!uid.equals("null")){
+            		saveRouteBtn.setEnabled(true);
+            	}
            }
            });
+	     }
+	    
+	    @JavascriptInterface
+	    public void routeHisReturn(final String distance,final String duration)
+	    {
+	    	cancelflag=3;
 	    	
-	    	
+	    	runOnUiThread(new Runnable() {
+	    		public void run() {
+            		leftInfoText.setText(distance+"公里\n"+duration+"分鐘");
+            		rightInfoText.setText("00:00:00");
+            		timerBtn.setEnabled(true);
+            	}
+           });
 	     }
 	    
 	    @JavascriptInterface
@@ -767,6 +835,26 @@ public class MainActivity extends Activity{
 	    	
 	    	int intValue=Integer.valueOf(pos);
 	    	final String localS=roadPointTitle.get(intValue);
+	    	
+	    	return localS;
+	    }
+	    
+	    @JavascriptInterface
+	    public String getRPLocationHis(final String pos)
+	    {
+	    	int intValue=Integer.valueOf(pos);
+	    	final String localS=savedRoadPointLocation.get(intValue);
+	    	
+	    	return localS;
+	    	
+	    }
+	    
+	    @JavascriptInterface
+	    public String getRPTitleHis(final String pos)
+	    {
+	    	
+	    	int intValue=Integer.valueOf(pos);
+	    	final String localS=savedRoadPointTitle.get(intValue);
 	    	
 	    	return localS;
 	    }
@@ -870,6 +958,125 @@ public class MainActivity extends Activity{
 			       });
 		     }
 	}
+	    
+	    private class getAu extends AsyncTask<String,Void, String>
+	    {
+			@Override
+			protected String doInBackground(String... arg0) {
+				
+				String getUrl="http://192.168.1.105:1337/isAuthenticated";
+				String content = "null";
+	    		 
+	            HttpGet get=new HttpGet(getUrl);  
+				 try {
+					
+					get.setHeader("cookie",arg0[0]);
+					
+					HttpClient client=new DefaultHttpClient();  
+	                HttpResponse response=client.execute(get);  
+	                if(response.getStatusLine().getStatusCode()==200){  
+	                    content=EntityUtils.toString(response.getEntity());   
+	                    flag=1;
+	                } else{
+	                	content=String.valueOf(response.getStatusLine().getStatusCode());
+	                	flag=0;
+	                }
+				} catch (ClientProtocolException e) {  
+	                e.printStackTrace();  
+	           } catch (IOException e) {  
+	                e.printStackTrace();  
+	           }  
+				
+				
+				return content;
+			}
+			
+			@Override
+			protected void onPostExecute(String result)
+	        {
+				if(flag==0){
+					Toast.makeText(MainActivity.this, result,100).show();	
+				}else if(flag==1){
+					
+					try{
+						JSONObject obj = new JSONObject(result);
+	    			
+						if(obj.getString("message").equals("yes")==true){
+							uid=obj.getString("uid");
+							
+							savedPath=bundle.getString("savedPath");
+							
+							if(!savedPath.equals("null")){
+								//Toast.makeText(MainActivity.this, savedPath,100).show();
+								savedRoadPointLocation=new ArrayList<String>();
+								savedRoadPointTitle=new ArrayList<String>();
+								savedPath="["+savedPath+"]";
+								JSONArray dataAry= new JSONArray(savedPath);
+								int i;
+								
+								for(i=0;i<dataAry.length();i++){
+									savedRoadPointLocation.add(dataAry.getJSONObject(i).getString("land"));
+									savedRoadPointTitle.add(dataAry.getJSONObject(i).getString("name"));
+								}
+								
+								mWebView.loadUrl("javascript:routeHis("+savedRoadPointLocation.size()+")");
+								
+							}
+						}
+	    			
+					}catch (JSONException e) {
+		    			e.printStackTrace();
+		    		}  
+					
+				}
+	        }
+	    }
+	    
+	    private class postSaveRoute extends AsyncTask<String,Void, String>
+	    {
+			@Override
+			protected String doInBackground(String... arg0) {
+				
+				String postUrl="http://easygo.ballchen.cc/history/create";
+				String content = "null";
+	    		List<NameValuePair> params=new ArrayList<NameValuePair>();  
+	            params.add(new BasicNameValuePair("path", arg0[0])); 
+	            params.add(new BasicNameValuePair("userid", arg0[1]));
+	    		 
+	       
+	            HttpPost post=new HttpPost(postUrl);  
+				 try {
+					post.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
+					
+					HttpClient client=new DefaultHttpClient();  
+	                HttpResponse response=client.execute(post);  
+	                if(response.getStatusLine().getStatusCode()==200){  
+	                   flag2=1;
+	                } else{
+	                   flag2=0;
+	                	
+	                }
+				} catch (ClientProtocolException e) {  
+	                e.printStackTrace();  
+	           } catch (IOException e) {  
+	                e.printStackTrace();  
+	           }  
+				
+				
+				return content;
+			}
+			
+			@Override
+			protected void onPostExecute(String result)
+	        {
+				if(flag2==0){
+					Toast.makeText(MainActivity.this,"收藏成功",100).show();
+				}else{
+					Toast.makeText(MainActivity.this,"收藏失敗",100).show();
+				}
+				
+	        }
+	    }
 	    
 
 }

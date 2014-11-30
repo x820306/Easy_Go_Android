@@ -121,7 +121,7 @@ var markerArrayt=[];
 						}
 						
 						
-						window.android.frpReturn(center0,rad0,lt,lg);
+						window.android.frpReturn(center0,rad0,lt,lg,sp.lat()+','+sp.lng(),ep.lat()+','+ep.lng());
 						
 						
 					} else {
@@ -423,6 +423,167 @@ function killRoute(){
 		markerArray[p].setMap(null);
 	 }
 	 markerArray=[];
+}
+
+function routeHis(ctr)
+{
+	var wayPnts=[];
+	var wptSend=[];
+	var wptTitle=[];
+	var request;
+	
+	
+	
+	for(i=0;i<ctr;i++){
+			var localLocation=window.android.getRPLocationHis(i);
+			wayPnts.push(localLocation);
+			var localTitle=window.android.getRPTitleHis(i);
+			wptTitle.push(localTitle);
+	}
+	
+	 if(wayPnts.length==2){
+	    request = {
+                origin:wptTitle[0],
+                destination:wptTitle[1],
+				optimizeWaypoints: true,
+                travelMode: google.maps.TravelMode.WALKING
+        };
+
+	 }else if(wayPnts.length>2){
+		   for(i=1;i<wayPnts.length-1;i++)
+		   {
+			   var xx;
+			   var aa;
+			   var bb;
+			   var cc;
+
+			   xx=wayPnts[i].split(",");
+			   aa=xx[0];
+			   bb=xx[1];
+
+			   cc=new google.maps.LatLng(aa,bb);
+
+			   wptSend.push({
+          		location:cc,
+          		stopover:true});
+		   }
+
+		    request = {
+                origin: wptTitle[0],
+                destination:wptTitle[wptTitle.length-1],
+				waypoints: wptSend,
+				optimizeWaypoints: true,
+                travelMode: google.maps.TravelMode.WALKING
+            };
+	 }
+	 
+	 
+	 
+	 directionsService.route(request, function(response, status) {
+		 
+		  if (status == google.maps.DirectionsStatus.OK) {
+			  
+			  if(directionsDisplay!=null)
+			  {
+					directionsDisplay.setMap(null);
+			  }
+			  
+			  var rendererOptions = {
+  							map: map,
+  							suppressMarkers : true
+			  }
+			  
+			  directionsDisplay = new google.maps.DirectionsRenderer(rendererOptions);
+			  directionsDisplay.setMap(map);
+              directionsDisplay.setDirections(response);
+			  
+			  for(p=0;p<markerArray.length;p++)
+			  {
+					markerArray[p].setMap(null);
+			  }
+			  markerArray=[];
+			  
+			  var icon_s="https://chart.googleapis.com/chart?chst=d_map_pin_icon&chld=star|FF0000|000000";
+			  var icon_e="https://chart.googleapis.com/chart?chst=d_map_pin_icon&chld=flag|FF0000|000000";
+			  var icon_f="https://chart.googleapis.com/chart?chst=d_map_pin_icon&chld=glyphish_walk|6aad32|000000";
+
+			   var xx2;
+			   var aa2;
+			   var bb2;
+			   var cc2;
+
+			   xx2=wayPnts[0].split(",");
+			   aa2=xx2[0];
+			   bb2=xx2[1];
+
+			   cc2=new google.maps.LatLng(aa2,bb2);
+			  
+			  var marker_temp_s = new google.maps.Marker({
+                  position: cc2,
+                  map: map,
+                  icon: icon_s
+              });
+
+			   attachInstructionText(marker_temp_s,wptTitle[0]);
+
+			   xx2=wayPnts[wayPnts.length-1].split(",");
+			   aa2=xx2[0];
+			   bb2=xx2[1];
+			 
+			   cc2=new google.maps.LatLng(aa2,bb2);
+			   
+			  var marker_temp_e = new google.maps.Marker({
+                  position: cc2,
+                  map: map,
+                  icon: icon_e
+              });
+
+			  attachInstructionText(marker_temp_e,wptTitle[wayPnts.length-1]);
+
+			  markerArray.push(marker_temp_s);
+			  markerArray.push(marker_temp_e);
+			  
+			  for(k=1;k<wayPnts.length-1;k++)
+			  {
+					var xxx=wayPnts[k].split(",");
+			        var aaa=xxx[0];
+			        var bbb=xxx[1];
+
+			        var ccc=new google.maps.LatLng(aaa,bbb);
+
+					var marker_temp= new google.maps.Marker({
+                        position: ccc,
+                        map: map,
+                        icon: icon_f
+                    });
+
+					var wedf=wptTitle[k].replace(/#/g, "<br/><br/>#");
+				    wedf=wedf.replace(/&/g, "<br/><br/>");
+							 
+					attachInstructionText(marker_temp,wedf);
+
+				    markerArray.push(marker_temp);
+
+			  }
+			  
+			  var totalDistance = 0;
+   			  var totalDuration = 0;
+              var legs = response.routes[0].legs;
+              for(var i=0; i<legs.length; ++i) {
+                  totalDistance += legs[i].distance.value;
+                  totalDuration += legs[i].duration.value;
+              }
+						 
+			  totalDistance/=1000;
+			  totalDistance=formatFloat(totalDistance,1);
+			  totalDuration/=60;
+			  totalDuration=formatFloat(totalDuration,1);
+			  
+			  window.android.routeHisReturn(totalDistance,totalDuration);
+			  
+		  }
+	});
+	
 }
   
 </script>

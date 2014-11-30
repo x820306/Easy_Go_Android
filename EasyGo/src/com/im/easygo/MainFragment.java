@@ -3,7 +3,23 @@ package com.im.easygo;
   
 
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
+
 import android.content.Intent;  
+import android.os.AsyncTask;
 import android.os.Bundle;  
 import android.support.v4.app.Fragment;  
 import android.util.Log;  
@@ -25,7 +41,7 @@ public class MainFragment extends Fragment {
     private UiLifecycleHelper uiHelper;  
 	private ImageButton goImgBtn;
 	private ImageButton historyImgBtn;
-	private String token;
+	private String cookie;
   
     private Session.StatusCallback callback = new Session.StatusCallback() {  
         @Override  
@@ -47,8 +63,7 @@ public class MainFragment extends Fragment {
             Bundle savedInstanceState) {  
         View view = inflater.inflate(R.layout.top_layout, container, false);  
   
-        LoginButton authButton = (LoginButton) view  
-                .findViewById(R.id.authButton);  
+        LoginButton authButton = (LoginButton) view.findViewById(R.id.authButton);  
         authButton.setFragment(this);  
         
         goImgBtn=(ImageButton)view.findViewById(R.id.imageButton1);
@@ -61,7 +76,8 @@ public class MainFragment extends Fragment {
         		intent.setClass(getActivity(), MainActivity.class);
         		
         		Bundle bundle = new Bundle();
-                bundle.putString("token", token);
+                bundle.putString("cookie", cookie);
+                bundle.putString("savedPath","null");
                 intent.putExtras(bundle);
         	
         		startActivity(intent); 
@@ -75,7 +91,7 @@ public class MainFragment extends Fragment {
         		intent.setClass(getActivity(), History.class);
         		
         		Bundle bundle = new Bundle();
-                bundle.putString("token", token);
+                bundle.putString("cookie", cookie);
                 intent.putExtras(bundle);
                 
         		startActivity(intent); 
@@ -83,7 +99,7 @@ public class MainFragment extends Fragment {
         });
         
         historyImgBtn.setEnabled(false);
-        token="null";
+        cookie="null";
        
         return view;  
     }  
@@ -92,13 +108,14 @@ public class MainFragment extends Fragment {
             Exception exception) {  
         if (state.isOpened()) {  
             Log.i(TAG, "Logged in..."); 
-            historyImgBtn.setEnabled(true);
             //Toast.makeText(getActivity(), session.getAccessToken(),100).show();
-            token=session.getAccessToken();
+            goImgBtn.setEnabled(false);
+            String token=session.getAccessToken();
+            new postToken().execute(token);
         } else if (state.isClosed()) {  
             Log.i(TAG, "Logged out..."); 
             historyImgBtn.setEnabled(false);
-            token="null";
+            cookie="null";
         }  
     }  
       
@@ -140,6 +157,56 @@ public class MainFragment extends Fragment {
         super.onSaveInstanceState(outState);  
         uiHelper.onSaveInstanceState(outState);  
     }  
+    
+    private class postToken extends AsyncTask<String,Void, String>
+    {
+		@Override
+		protected String doInBackground(String... arg0) {
+			
+			String postUrl="http://192.168.1.105:1337/android_login";
+			String content = "null";
+    		List<NameValuePair> params=new ArrayList<NameValuePair>();  
+            params.add(new BasicNameValuePair("access_token", arg0[0]));  
+    		 
+       
+            HttpPost post=new HttpPost(postUrl);  
+			 try {
+				post.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
+				
+				HttpClient client=new DefaultHttpClient();  
+                HttpResponse response=client.execute(post);  
+                if(response.getStatusLine().getStatusCode()==200){  
+                   //content=EntityUtils.toString(response.getEntity());    
+                   content=response.getFirstHeader("Set-Cookie").getValue();
+
+                   
+                } else{
+                	content="null";
+                	
+                }
+			} catch (ClientProtocolException e) {  
+                e.printStackTrace();  
+           } catch (IOException e) {  
+                e.printStackTrace();  
+           }  
+			
+			
+			return content;
+		}
+		
+		@Override
+		protected void onPostExecute(String result)
+        {
+			//new getAu().execute(result);
+			cookie=result;
+			goImgBtn.setEnabled(true);
+			if(!cookie.equals("null")){
+				historyImgBtn.setEnabled(true);
+			}
+        }
+    }
+    
+   
 }  
 
 
