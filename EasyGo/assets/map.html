@@ -142,12 +142,26 @@ var markerArrayt=[];
 			var loc=window.android.getRPLocation(rec);
 			var tle=window.android.getRPTitle(rec);
 			
-			
+			var icon_w="https://chart.googleapis.com/chart?chst=d_map_pin_icon&chld=glyphish_compass|6aad32|000000";
 			var icon_t="https://chart.googleapis.com/chart?chst=d_map_pin_icon&chld=glyphish_compass|FF0000|000000";
 	
-	        var xxx0=loc.split(",");
+		    var xxx0=loc.split(",");
 			var aaa0=xxx0[0];
 			var bbb0=xxx0[1];
+
+			var xxxg0=tle.split("#");
+			var aaag0=xxxg0[0];
+			var bbbg0=xxxg0[1];
+			var icon0; 
+
+			if(bbbg0=="推薦地點")
+			{
+				icon0=icon_t;
+			}else
+			{
+				 icon0=icon_w;
+							
+			}
 			
 			tle=tle.replace(/&/g, "<br/><br/>");
 			tle=tle.replace(/#/g, "<br/><br/>#")
@@ -156,15 +170,21 @@ var markerArrayt=[];
 			var marker_temp0= new google.maps.Marker({
                     position: ccc0,
                     map: map,
-					icon: icon_t
+					icon: icon0
             });
 							
 			var hml='<p>'+tle+'</p><br/><button onclick="myFunc('+rec+')">選擇</button>';
 
 			attachInstructionText(marker_temp0,hml);
 
-			markerArrayt.push(marker_temp0);
-							
+			if(bbbg0=="推薦地點")
+			{
+				markerArrayt.push(marker_temp0);
+			}else
+			{
+				markerArray0.push(marker_temp0);
+			}
+				
 		 }
 		 
 
@@ -202,6 +222,11 @@ var markerArrayt=[];
 	{
 		markerArrayt[i].setMap(null);
 	}
+	
+	for(i=0;i<markerArray0.length;i++)
+	{
+		markerArray0[i].setMap(null);
+	}
 }
 
 function showRPmarkers()
@@ -215,6 +240,11 @@ function showRPmarkers()
 			markerArrayt[i].setMap(map);
 		}
 		
+		for(i=0;i<markerArray0.length;i++)
+		{
+			markerArray0[i].setMap(map);
+		}
+		
 }
 
 function killRPmarkers()
@@ -225,6 +255,12 @@ function killRPmarkers()
 			markerArrayt[i].setMap(null);
 		}
 		markerArrayt=[];
+		
+		for(i=0;i<markerArray0.length;i++)
+		{
+			markerArray0[i].setMap(null);
+		}
+		markerArray0=[];
 }
 
 function route(ctr)

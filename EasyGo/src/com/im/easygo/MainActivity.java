@@ -40,6 +40,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.io.IOException;  
 import java.io.UnsupportedEncodingException;  
+import java.net.URLDecoder;
 
 
 
@@ -57,12 +58,14 @@ public class MainActivity extends Activity{
 	private Button rdmBtn;
 	private Button timerBtn;
 	private Button saveRouteBtn;
+	private Button rpCategoryBtn;
 	private LocationManager Lmgr;
 	private LocationManager Lmgr2;
 	private String bestLocationProvider;
 	private String bestLocationProvider2;
 	private EditText startLocation;
 	private EditText endLocation;
+	private EditText keyword;
 	private TextView leftInfoText;
 	private TextView rightInfoText;
 	private LocationListener locationListener;
@@ -81,6 +84,8 @@ public class MainActivity extends Activity{
 	private String endLatLng;
 	private String tDistance;
 	private String tDuration;
+	private String iiiToken;
+	private String keywordString;
 	private int seFlag;
 	private int findRoadPointBtnFlag=0;
 	private List<String> roadPointLocation;
@@ -88,11 +93,17 @@ public class MainActivity extends Activity{
 	private List<String> roadPointTitle;
 	private List<String> savedRoadPointLocation;
 	private List<String> savedRoadPointTitle;
+	private List<String> categoryName;
+	private List<String> categoryValue;
+	private List<String> categorySend;
+	private List<Integer> categoryChosen;
 	private AlertDialog.Builder builder;
+	private AlertDialog.Builder builder2;
 	private int cancelflag=0;
 	private int goflag=0;
 	private int timerBtnFlag=0;
 	private int totalSec=0;
+	private int limit;
 	private Timer timer1;
 	private String cookie;
 	private String uid;
@@ -111,6 +122,7 @@ public class MainActivity extends Activity{
         
         startLocation = (EditText)findViewById(R.id.editText1);
         endLocation = (EditText)findViewById(R.id.editText2);
+        keyword=(EditText)findViewById(R.id.editText3);
     
         startLBtn=(Button)findViewById(R.id.button1);
         endLBtn=(Button)findViewById(R.id.button2);
@@ -119,6 +131,7 @@ public class MainActivity extends Activity{
         rdmBtn=(Button)findViewById(R.id.button5);
         timerBtn=(Button)findViewById(R.id.button6);
         saveRouteBtn=(Button)findViewById(R.id.button7);
+        rpCategoryBtn=(Button)findViewById(R.id.button8);
         leftInfoText=(TextView)findViewById(R.id.textView3);
         rightInfoText=(TextView)findViewById(R.id.textView4);
        
@@ -278,7 +291,7 @@ public class MainActivity extends Activity{
         	@Override
         	public void onClick(View v) {
         	
-        			if((startLocation.getText().toString() != null)&&(endLocation.getText().toString() != null)&&(findRoadPointBtnFlag!=1))
+        			if((!startLocation.getText().toString().trim().equals(""))&&(!endLocation.getText().toString().trim().equals(""))&&(findRoadPointBtnFlag!=1))
         			{
         				
         			
@@ -287,6 +300,8 @@ public class MainActivity extends Activity{
         				endAddress=endLocation.getText().toString();
         				
         				routeKiller();
+        				goflag=0;
+        				cancelflag=0;
         				
         				mWebView.loadUrl("javascript:frp('"+startAddress+"','"+endAddress+"')");
         			}
@@ -361,6 +376,44 @@ public class MainActivity extends Activity{
 
         	}
         });
+        
+        rpCategoryBtn.setOnClickListener(new Button.OnClickListener(){
+        	@Override
+        	public void onClick(View v) {
+        		
+        		int a;
+        		String[] temp = new String[categoryName.size()];
+        		for(a=0;a<categoryName.size();a++)
+				{
+        			temp[a]=categoryName.get(a);
+				}
+        		boolean[] temp2 = new boolean[categoryChosen.size()];
+        		for(a=0;a<categoryChosen.size();a++)
+				{
+        			if(categoryChosen.get(a)==0)
+        				temp2[a]=false;
+        			else
+        				temp2[a]=true;
+				}
+        	
+        		builder2 = new AlertDialog.Builder(MainActivity.this);
+        		builder2.setMultiChoiceItems(temp, temp2,
+        		new DialogInterface.OnMultiChoiceClickListener() {
+        			public void onClick(DialogInterface dialog, int whichButton,boolean isChecked) {
+        					if(isChecked) {
+        						categoryChosen.set(whichButton,1);
+        						
+        					}else {
+        						categoryChosen.set(whichButton,0);
+        					}
+        					 
+        			}
+        		});
+	
+        		builder2.create().show();
+
+        	}
+        });
 		
 		rdmBtn.setOnClickListener(new Button.OnClickListener(){
         	@Override
@@ -426,6 +479,36 @@ public class MainActivity extends Activity{
         cookie=bundle.getString("cookie");
         uid="null";
         
+        categoryName=new ArrayList<String>();
+    	categoryChosen=new ArrayList<Integer>();
+    	categoryValue=new ArrayList<String>();
+    	
+    	categoryName.add("商務"); categoryValue.add("Local business"); categoryChosen.add(0);
+    	categoryName.add("餐廳"); categoryValue.add("Restaurant/cafe"); categoryChosen.add(0);
+    	categoryName.add("旅館"); categoryValue.add("Hotel"); categoryChosen.add(0);
+    	categoryName.add("休閒"); categoryValue.add("Travel/leisure"); categoryChosen.add(0);
+    	categoryName.add("學校"); categoryValue.add("School"); categoryChosen.add(0);
+    	categoryName.add("地標"); categoryValue.add("Landmark"); categoryChosen.add(0);
+    	categoryName.add("觀光"); categoryValue.add("Tours/sightseeing"); categoryChosen.add(0);
+    	categoryName.add("娛樂"); categoryValue.add("Arts/entertainment/nightlife"); categoryChosen.add(0);
+    	categoryName.add("購物"); categoryValue.add("Shopping/retail"); categoryChosen.add(0);
+    	categoryName.add("美容"); categoryValue.add("Health/beauty"); categoryChosen.add(0);
+    	categoryName.add("食品"); categoryValue.add("Food/grocery"); categoryChosen.add(0);
+    	categoryName.add("飲料"); categoryValue.add("Food/beverages"); categoryChosen.add(0);
+    	categoryName.add("服飾"); categoryValue.add("Clothing"); categoryChosen.add(0);
+    	categoryName.add("宗教"); categoryValue.add("Church/religious organization"); categoryChosen.add(0);
+    	categoryName.add("博物館"); categoryValue.add("Museum/art gallery"); categoryChosen.add(0);
+    	categoryName.add("體育館"); categoryValue.add("Sports venue"); categoryChosen.add(0);
+    	categoryName.add("酒吧"); categoryValue.add("Bar"); categoryChosen.add(0);
+    	categoryName.add("俱樂部"); categoryValue.add("Club"); categoryChosen.add(0);
+    	categoryName.add("圖書館"); categoryValue.add("Library"); categoryChosen.add(0);
+    	categoryName.add("零售店"); categoryValue.add("Retail and consumer merchandise"); categoryChosen.add(0);
+    	categoryName.add("書店"); categoryValue.add("Book store"); categoryChosen.add(0);
+    	categoryName.add("政府"); categoryValue.add("Government organization"); categoryChosen.add(0);
+    	categoryName.add("電影院"); categoryValue.add("Movie theater"); categoryChosen.add(0);
+    	categoryName.add("珠寶"); categoryValue.add("Jewelry/watches"); categoryChosen.add(0);
+    	categoryName.add("院所"); categoryValue.add("Hospital/clinic"); categoryChosen.add(0);
+    	
 		chooseRoadPointBtn.setEnabled(false);
 		rdmBtn.setEnabled(false);
 		timerBtn.setEnabled(false);
@@ -582,7 +665,6 @@ public class MainActivity extends Activity{
 	    
 	    public void httpPost(final String postUrl,final List<NameValuePair> params,final int postFlag){
 	    	
-	  
 					HttpPost post=new HttpPost(postUrl);  
 					 try {
 						post.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
@@ -599,8 +681,7 @@ public class MainActivity extends Activity{
 	                } catch (IOException e) {  
 	                    e.printStackTrace();  
 	                }  
-	                    
-				
+			
 	    }
 	    
 	    public void analysisJSON(String content,int postFlag){  
@@ -674,36 +755,58 @@ public class MainActivity extends Activity{
 							{
 								roadPointTitle.set(a,roadPointTitle.get(a)+"#推薦地點");
 								roadPointLocationChosen.add(0);
-							}
-							
-							
-							
-							
-							runOnUiThread(new Runnable() {
-					            public void run() {
-					            	chooseRoadPointBtn.setEnabled(true);
-									rdmBtn.setEnabled(true);
-									mWebView.loadUrl("javascript:killRPmarkers()");
-					            	mWebView.loadUrl("javascript:setMarkers("+roadPointLocation.size()+")");
-					           }
-					       });
-							
-								
-	    			}else{
-	    				
-	    				runOnUiThread(new Runnable() {
-				            public void run() {
-				            	chooseRoadPointBtn.setEnabled(false);
-								rdmBtn.setEnabled(false);
-								mWebView.loadUrl("javascript:killRPmarkers()");
-				           }
-				       });
-	    				
+							}		
 	    			}
 	    		} catch (JSONException e) {
 	    			e.printStackTrace();
 	    		}  
 
+	        }else if(postFlag==1){
+	        	
+	        	try {
+	    			final JSONObject obj = new JSONObject(content);
+	    			
+	    			if(obj.getString("message").equals("success")==true){
+
+	    			    JSONArray dataAry=obj.getJSONArray("result");
+	    				int ctr=dataAry.length();
+	    				int a;
+	    				
+	    				limit-=ctr;
+	    				
+							for(a=0;a<ctr;a++)
+							{
+								String tempp=dataAry.getJSONObject(a).getString("name").replace("\\","%");
+								String tempp2 = "null";
+								try {
+									tempp2=URLDecoder.decode(tempp, "UTF-8");
+								} catch (UnsupportedEncodingException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+								
+								roadPointTitle.add(tempp2+"#人氣度:"+dataAry.getJSONObject(a).getString("checkins"));
+								roadPointLocation.add(dataAry.getJSONObject(a).getString("latitude")+","+dataAry.getJSONObject(a).getString("longitude"));
+								roadPointLocationChosen.add(0);
+							}	
+							
+	    			}
+	    		} catch (JSONException e) {
+	    			e.printStackTrace();
+	    		}  
+	        }else if(postFlag==2){
+	        	
+	        	try {
+	    			final JSONObject obj = new JSONObject(content);
+	    			
+	    			if(obj.getString("message").equals("success")==true){
+	    				iiiToken=obj.getJSONObject("result").getString("token");
+	    				iiiRPsetting();
+	    			}
+	    			
+	    		} catch (JSONException e) {
+	    			e.printStackTrace();
+	    		}  
 	        }
 	    }  
 	    
@@ -716,6 +819,68 @@ public class MainActivity extends Activity{
                 params.add(new BasicNameValuePair("lon_self", centerlg));  
                 params.add(new BasicNameValuePair("rad", rad)); 
                 httpPost(postUrl,params,postFlag);
+	    	}else if(postFlag==2){
+	    		String postUrl="http://api.ser.ideas.iii.org.tw/api/user/get_token";
+	    		List<NameValuePair> params=new ArrayList<NameValuePair>();  
+                params.add(new BasicNameValuePair("id", "277b49909b1d1400b8a139f0d575cad5"));  
+                params.add(new BasicNameValuePair("secret_key", "2681a844c37d538bbd53d5ac101a3f43"));  
+                httpPost(postUrl,params,postFlag);	
+	    	}
+	    	
+	    }
+	    
+	    public void postData2(int categoryIndex,int leftTimes,boolean allFlag){
+	    	String postUrl="http://api.ser.ideas.iii.org.tw/api/fb_checkin_search";
+	    	List<NameValuePair> params=new ArrayList<NameValuePair>();  
+	
+	    	 params.add(new BasicNameValuePair("coordinates", center));
+    		 params.add(new BasicNameValuePair("radius", rad));
+    		 params.add(new BasicNameValuePair("limit", String.valueOf(limit)));
+    		 params.add(new BasicNameValuePair("token", iiiToken));
+    		 
+    		 if(!keywordString.equals("null")){
+    			 params.add(new BasicNameValuePair("keyword",keywordString));
+    		 }
+	    	
+	    	if(!allFlag){
+	    		params.add(new BasicNameValuePair("category",categorySend.get(categoryIndex)));
+	    	}
+	    	
+	    	httpPost(postUrl,params,1);
+	    	
+	    	leftTimes--;
+	    	
+	    	if((leftTimes!=0)&&(limit>0))
+			{
+	    		categoryIndex++;
+	    		postData2(categoryIndex,leftTimes,false);
+			}
+	    	
+	    }
+	    
+	    public void iiiRPsetting(){
+	    	int i;
+	    	categorySend=new ArrayList<String>();
+	    	for(i=0;i<categoryChosen.size();i++)
+	    	{
+	    		if(categoryChosen.get(i)==1)
+	    		{
+	    			categorySend.add(categoryValue.get(i));
+	    		}
+	    	}
+	    	
+	    	limit=20;
+	    	if(!keyword.getText().toString().trim().equals("")){
+	    		keywordString=keyword.getText().toString();
+   		 	}else{
+   		 		keywordString="null";
+   		 	}
+	    	
+	    	if(categorySend.size()==0)
+	    	{
+	    		postData2(0,1,true);
+	    	}else if(categorySend.size()>0){
+	    		postData2(0,categorySend.size(),false);
 	    	}
 	    	
 	    }
@@ -780,9 +945,32 @@ public class MainActivity extends Activity{
 	    	endLatLng=endLoc;
 	    	postData(0);
 	    	
+	    	//postData(2);
+	    	
+	    	if(roadPointTitle.size()==0){
+	    		runOnUiThread(new Runnable() {
+		            public void run() {
+		            	chooseRoadPointBtn.setEnabled(false);
+						rdmBtn.setEnabled(false);
+						mWebView.loadUrl("javascript:killRPmarkers()");
+		           }
+		       });
+	    	}else{
+	    		runOnUiThread(new Runnable() {
+		            public void run() {
+		            	chooseRoadPointBtn.setEnabled(true);
+						rdmBtn.setEnabled(true);
+						mWebView.loadUrl("javascript:killRPmarkers()");
+		            	mWebView.loadUrl("javascript:setMarkers("+roadPointTitle.size()+")");
+		           }
+		       });
+	    	}
+	    	
 	    	findRoadPointBtnFlag=0;
 	    	goflag=1;
 	    	cancelflag=1;
+	    	
+	    	Toast.makeText(MainActivity.this,"找到"+roadPointTitle.size()+"個路點", 100).show();
 	     }
 	    
 	    @JavascriptInterface
