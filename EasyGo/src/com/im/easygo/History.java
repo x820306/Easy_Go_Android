@@ -48,7 +48,7 @@ public class History extends Activity {
 			@Override
 			protected String doInBackground(String... arg0) {
 				
-				String getUrl="http://192.168.1.105:1337/isAuthenticated";
+				String getUrl="http://easygo.ballchen.cc/isAuthenticated";
 				String content = "null";
 	    		 
 	            HttpGet get=new HttpGet(getUrl);  
@@ -138,7 +138,6 @@ public class History extends Activity {
 						final JSONArray dataAry= new JSONArray(result);
 					    int i;
 	    			
-						//Toast.makeText(History.this, String.valueOf(dataAry.length()),100).show();
 						
 						LinearLayout ll = (LinearLayout)findViewById(R.id.LinearLayout1);
 						
@@ -170,9 +169,7 @@ public class History extends Activity {
 					         	}
 					         });
 						}
-						//Toast.makeText(History.this, dataAry.getJSONObject(0).getString("path"),100).show();
-						
-						//Toast.makeText(History.this, dataAry.getJSONObject(0).getString("userid"),100).show();
+						Toast.makeText(History.this, "找到"+String.valueOf(dataAry.length())+"條路線",100).show();
 	    			
 					}catch (JSONException e) {
 		    			e.printStackTrace();

@@ -1152,7 +1152,7 @@ public class MainActivity extends Activity{
 			@Override
 			protected String doInBackground(String... arg0) {
 				
-				String getUrl="http://192.168.1.105:1337/isAuthenticated";
+				String getUrl="http://easygo.ballchen.cc/isAuthenticated";
 				String content = "null";
 	    		 
 	            HttpGet get=new HttpGet(getUrl);  
@@ -1238,7 +1238,8 @@ public class MainActivity extends Activity{
 					
 					HttpClient client=new DefaultHttpClient();  
 	                HttpResponse response=client.execute(post);  
-	                if(response.getStatusLine().getStatusCode()==200){  
+	                
+	                if(response.getStatusLine().getStatusCode()==201){  
 	                   flag2=1;
 	                } else{
 	                   flag2=0;
@@ -1258,11 +1259,10 @@ public class MainActivity extends Activity{
 			protected void onPostExecute(String result)
 	        {
 				if(flag2==0){
-					Toast.makeText(MainActivity.this,"收藏成功",100).show();
-				}else{
 					Toast.makeText(MainActivity.this,"收藏失敗",100).show();
+				}else{
+					Toast.makeText(MainActivity.this,"收藏成功",100).show();
 				}
-				
 	        }
 	    }
 	    
