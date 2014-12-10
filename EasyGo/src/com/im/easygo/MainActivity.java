@@ -26,8 +26,12 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;  
 import org.apache.http.client.methods.HttpGet;  
 import org.apache.http.client.methods.HttpPost;  
+import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.impl.client.DefaultHttpClient;  
 import org.apache.http.message.BasicNameValuePair;  
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;  
 import org.json.JSONArray;
 import org.json.JSONException;  
@@ -40,6 +44,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.io.IOException;  
 import java.io.UnsupportedEncodingException;  
+import java.net.SocketTimeoutException;
 import java.net.URLDecoder;
 
 
@@ -87,7 +92,6 @@ public class MainActivity extends Activity{
 	private String iiiToken;
 	private String keywordString;
 	private int seFlag;
-	private int findRoadPointBtnFlag=0;
 	private List<String> roadPointLocation;
 	private List<Integer> roadPointLocationChosen;
 	private List<String> roadPointTitle;
@@ -104,6 +108,7 @@ public class MainActivity extends Activity{
 	private int timerBtnFlag=0;
 	private int totalSec=0;
 	private int limit;
+	private int HttpTimeoutFlag=0;
 	private Timer timer1;
 	private String cookie;
 	private String uid;
@@ -291,11 +296,12 @@ public class MainActivity extends Activity{
         	@Override
         	public void onClick(View v) {
         	
-        			if((!startLocation.getText().toString().trim().equals(""))&&(!endLocation.getText().toString().trim().equals(""))&&(findRoadPointBtnFlag!=1))
+        			if((!startLocation.getText().toString().trim().equals(""))&&(!endLocation.getText().toString().trim().equals("")))
         			{
+        				findRoadPointBtn.setEnabled(false);
+        				chooseRoadPointBtn.setEnabled(false);
+						rdmBtn.setEnabled(false);
         				
-        			
-        				findRoadPointBtnFlag=1;
         				startAddress=startLocation.getText().toString();
         				endAddress=endLocation.getText().toString();
         				
@@ -588,34 +594,38 @@ public class MainActivity extends Activity{
 	    public void cancelByflag() {  
 	    	if(cancelflag==1)
 	    	{
-	    		int a;
-	    		for(a=0;a<roadPointLocationChosen.size();a++)
-				{
-					roadPointLocationChosen.set(a,0);
-				}
+	    		if(roadPointTitle.size()>0){
+	    			int a;
+	    			for(a=0;a<roadPointLocationChosen.size();a++)
+	    			{
+	    				roadPointLocationChosen.set(a,0);
+	    			}
 	    		
-	    		runOnUiThread(new Runnable() {
-		            public void run() {
+	    			runOnUiThread(new Runnable() {
+	    				public void run() {
 		            	chooseRoadPointBtn.setEnabled(true);
-		            }
-		        });
+	    				}
+	    			});
+	    		}
 	    	}else if(cancelflag==2)
 	    	{
 	    		routeKiller();
+	    
+	    		if(roadPointTitle.size()>0){
+	    			int a;
+	    			for(a=0;a<roadPointLocationChosen.size();a++)
+					{
+						roadPointLocationChosen.set(a,0);
+					}
 	    		
-	    		int a;
-	    		for(a=0;a<roadPointLocationChosen.size();a++)
-				{
-					roadPointLocationChosen.set(a,0);
-				}
+	    			runOnUiThread(new Runnable() {
+		            	public void run() {
+		            		chooseRoadPointBtn.setEnabled(true);
+		            	}
+		        	});
+	    		}
 	    		
-	    		runOnUiThread(new Runnable() {
-		            public void run() {
-		            	mWebView.loadUrl("javascript:showRPmarkers()");
-		            	chooseRoadPointBtn.setEnabled(true);
-		            }
-		        });
-	    		
+	    		mWebView.loadUrl("javascript:showRPmarkers()");
 	    		cancelflag=1;
 	    		
 	    	}  else if(cancelflag==3)
@@ -669,16 +679,28 @@ public class MainActivity extends Activity{
 					 try {
 						post.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
 						
-						HttpClient client=new DefaultHttpClient();  
+						 
+						HttpParams httpParameters=new BasicHttpParams();
+						HttpConnectionParams.setConnectionTimeout(httpParameters, 8000);
+						HttpConnectionParams.setSoTimeout(httpParameters, 10000);
+						DefaultHttpClient client=new DefaultHttpClient(httpParameters); 
 	                    HttpResponse response=client.execute(post);  
 	                    if(response.getStatusLine().getStatusCode()==200){  
 	                        final String content=EntityUtils.toString(response.getEntity());     
 	                        
 	                        analysisJSON(content,postFlag);  
 	                    } 
-					} catch (ClientProtocolException e) {  
+					}catch (ConnectTimeoutException e) {  
+						HttpTimeoutFlag=1;
+						e.printStackTrace();  
+	                }catch (SocketTimeoutException e) {  
+						HttpTimeoutFlag=1;
+						e.printStackTrace();  
+	                }catch (ClientProtocolException e) { 
+	                	HttpTimeoutFlag=1;
 	                    e.printStackTrace();  
-	                } catch (IOException e) {  
+	                } catch (IOException e) {
+	                	HttpTimeoutFlag=1;
 	                    e.printStackTrace();  
 	                }  
 			
@@ -696,11 +718,6 @@ public class MainActivity extends Activity{
 	    			    JSONArray dataAry=obj.getJSONArray("data");
 	    				int ctr=dataAry.length();
 	    				int a,b;
-	    				
-	    				
-	    				roadPointLocation=new ArrayList<String>();
-	    				roadPointTitle=new ArrayList<String>();
-	    				roadPointLocationChosen=new ArrayList<Integer>();
 	    				
 	    				if(ctr>20)
 	    				{
@@ -943,6 +960,12 @@ public class MainActivity extends Activity{
 	    	centerlg=centerlg0;
 	    	startLatLng=startLoc;
 	    	endLatLng=endLoc;
+	    	
+	    	roadPointLocation=new ArrayList<String>();
+			roadPointTitle=new ArrayList<String>();
+			roadPointLocationChosen=new ArrayList<Integer>();
+			HttpTimeoutFlag=0;
+	    	
 	    	postData(0);
 	    	
 	    	//postData(2);
@@ -950,8 +973,6 @@ public class MainActivity extends Activity{
 	    	if(roadPointTitle.size()==0){
 	    		runOnUiThread(new Runnable() {
 		            public void run() {
-		            	chooseRoadPointBtn.setEnabled(false);
-						rdmBtn.setEnabled(false);
 						mWebView.loadUrl("javascript:killRPmarkers()");
 		           }
 		       });
@@ -966,11 +987,20 @@ public class MainActivity extends Activity{
 		       });
 	    	}
 	    	
-	    	findRoadPointBtnFlag=0;
+	    	
+	    	runOnUiThread(new Runnable() {
+	            public void run() {
+	            	findRoadPointBtn.setEnabled(true);
+	           }
+	       });
 	    	goflag=1;
 	    	cancelflag=1;
 	    	
-	    	Toast.makeText(MainActivity.this,"找到"+roadPointTitle.size()+"個路點", 100).show();
+	    	if(HttpTimeoutFlag==1){
+	    		Toast.makeText(MainActivity.this,"HTTP連線超時，路點可能因此短缺\n找到"+roadPointTitle.size()+"個路點", 100).show();
+			}else{
+				Toast.makeText(MainActivity.this,"找到"+roadPointTitle.size()+"個路點", 100).show();
+			}
 	     }
 	    
 	    @JavascriptInterface
