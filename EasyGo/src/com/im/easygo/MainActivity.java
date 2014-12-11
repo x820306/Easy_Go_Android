@@ -685,47 +685,6 @@ public class MainActivity extends Activity{
 	    	}
 	    }  
 	    
-
-	    
-	    public String httpPost(final String postUrl,final List<NameValuePair> params){
-	    	
-					HttpPost post=new HttpPost(postUrl);  
-					 try {
-						post.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
-						
-						 
-						HttpParams httpParameters=new BasicHttpParams();
-						HttpConnectionParams.setConnectionTimeout(httpParameters, 15000);
-						HttpConnectionParams.setSoTimeout(httpParameters, 20000);
-						DefaultHttpClient client=new DefaultHttpClient(httpParameters); 
-	                    HttpResponse response=client.execute(post);  
-	                    if(response.getStatusLine().getStatusCode()==200){  
-	                        final String content=EntityUtils.toString(response.getEntity());     
-	                        
-	                        return content;
-	                    }else{
-	                    	HttpTimeoutFlag=1;
-	                    	return "null";
-	                    }
-					}catch (ConnectTimeoutException e) {  
-						HttpTimeoutFlag=1;
-						e.printStackTrace();  
-						return "null";
-	                }catch (SocketTimeoutException e) {  
-						HttpTimeoutFlag=1;
-						e.printStackTrace();  
-						return "null";
-	                }catch (ClientProtocolException e) { 
-	                	HttpTimeoutFlag=1;
-	                    e.printStackTrace();  
-	                    return "null";
-	                } catch (IOException e) {
-	                	HttpTimeoutFlag=1;
-	                    e.printStackTrace(); 
-	                    return "null";
-	                }  
-			
-	    }
 	    
 	    public void analysisJSON(String content,int postFlag){  
 	    	if(postFlag==0){
@@ -1280,9 +1239,41 @@ public class MainActivity extends Activity{
 	            params.add(new BasicNameValuePair("lat_self", centerlt));  
 	            params.add(new BasicNameValuePair("lon_self", centerlg));  
 	            params.add(new BasicNameValuePair("rad", rad)); 
-	            content=httpPost(postUrl,params);
-		    	
-				return content;
+	            
+	            HttpPost post=new HttpPost(postUrl);  
+				 try {
+					post.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
+					
+					HttpParams httpParameters=new BasicHttpParams();
+					HttpConnectionParams.setConnectionTimeout(httpParameters, 15000);
+					HttpConnectionParams.setSoTimeout(httpParameters, 15000);
+					HttpClient client=new DefaultHttpClient(httpParameters); 
+                    HttpResponse response=client.execute(post);  
+                   if(response.getStatusLine().getStatusCode()==200){  
+                       content=EntityUtils.toString(response.getEntity());     
+                       
+                       return content;
+                   }else{
+                   	HttpTimeoutFlag=1;
+                   	return "null";
+                   }
+				}catch (ConnectTimeoutException e) {  
+					HttpTimeoutFlag=1;
+					e.printStackTrace();  
+					return "null";
+               }catch (SocketTimeoutException e) {  
+					HttpTimeoutFlag=1;
+					e.printStackTrace();  
+					return "null";
+               }catch (ClientProtocolException e) { 
+               	HttpTimeoutFlag=1;
+                   e.printStackTrace();  
+                   return "null";
+               } catch (IOException e) {
+               	HttpTimeoutFlag=1;
+                   e.printStackTrace(); 
+                   return "null";
+               }
 			}
 			
 			@Override
@@ -1310,9 +1301,41 @@ public class MainActivity extends Activity{
 	    		List<NameValuePair> params=new ArrayList<NameValuePair>();  
                 params.add(new BasicNameValuePair("id", "277b49909b1d1400b8a139f0d575cad5"));  
                 params.add(new BasicNameValuePair("secret_key", "2681a844c37d538bbd53d5ac101a3f43"));  
-                content=httpPost(postUrl,params);	
-		    	
-				return content;
+                
+                HttpPost post=new HttpPost(postUrl);  
+				 try {
+					post.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
+					
+					HttpParams httpParameters=new BasicHttpParams();
+					HttpConnectionParams.setConnectionTimeout(httpParameters, 15000);
+					HttpConnectionParams.setSoTimeout(httpParameters, 15000);
+					HttpClient client=new DefaultHttpClient(httpParameters); 
+                   HttpResponse response=client.execute(post);  
+                  if(response.getStatusLine().getStatusCode()==200){  
+                      content=EntityUtils.toString(response.getEntity());     
+                      
+                      return content;
+                  }else{
+                  	HttpTimeoutFlag=1;
+                  	return "null";
+                  }
+				}catch (ConnectTimeoutException e) {  
+					HttpTimeoutFlag=1;
+					e.printStackTrace();  
+					return "null";
+              }catch (SocketTimeoutException e) {  
+					HttpTimeoutFlag=1;
+					e.printStackTrace();  
+					return "null";
+              }catch (ClientProtocolException e) { 
+              	HttpTimeoutFlag=1;
+                  e.printStackTrace();  
+                  return "null";
+              } catch (IOException e) {
+              	HttpTimeoutFlag=1;
+                  e.printStackTrace(); 
+                  return "null";
+              }
 			}
 			
 			@Override
@@ -1320,6 +1343,8 @@ public class MainActivity extends Activity{
 	        {
 				if(!result.equals("null")){
 					 analysisJSON(result,1);  
+				}else{
+					frpEnding();
 				}
 	        }
 	    }
@@ -1346,9 +1371,40 @@ public class MainActivity extends Activity{
 		    		params.add(new BasicNameValuePair("category",categorySend.get(categoryIndex)));
 		    	}
 		    	
-		    	content=httpPost(postUrl,params);
-		    	
-				return content;
+		    	  HttpPost post=new HttpPost(postUrl);  
+					 try {
+						post.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
+						
+						HttpParams httpParameters=new BasicHttpParams();
+						HttpConnectionParams.setConnectionTimeout(httpParameters, 15000);
+						HttpConnectionParams.setSoTimeout(httpParameters, 15000);
+						HttpClient client=new DefaultHttpClient(httpParameters); 
+	                   HttpResponse response=client.execute(post);  
+	                  if(response.getStatusLine().getStatusCode()==200){  
+	                      content=EntityUtils.toString(response.getEntity());     
+	                      
+	                      return content;
+	                  }else{
+	                  	HttpTimeoutFlag=1;
+	                  	return "null";
+	                  }
+					}catch (ConnectTimeoutException e) {  
+						HttpTimeoutFlag=1;
+						e.printStackTrace();  
+						return "null";
+	              }catch (SocketTimeoutException e) {  
+						HttpTimeoutFlag=1;
+						e.printStackTrace();  
+						return "null";
+	              }catch (ClientProtocolException e) { 
+	              	HttpTimeoutFlag=1;
+	                  e.printStackTrace();  
+	                  return "null";
+	              } catch (IOException e) {
+	              	HttpTimeoutFlag=1;
+	                  e.printStackTrace(); 
+	                  return "null";
+	              }
 			}
 			
 			@Override
