@@ -1,4 +1,4 @@
-
+﻿
 
 <android.support.v4.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -145,7 +145,7 @@
             android:layout_height="35dp"
             android:layout_alignLeft="@+id/button2"
             android:layout_below="@+id/button2"
-            android:layout_marginTop="170dp"
+            android:layout_marginTop="120dp"
             android:text="搜尋路點" />
 
         <Button
@@ -211,6 +211,28 @@
             android:layout_alignRight="@+id/button7"
             android:layout_marginBottom="5dp"
             android:text="路點類型" />
+        
+        <TextView
+            android:id="@+id/textView6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/button4"
+            android:layout_below="@+id/button4"
+            android:layout_marginTop="5dp"
+            android:text="資策會API開啟/關閉"
+            android:textColor="@color/white" />
+
+        <Switch
+            android:id="@+id/switch1"
+            android:layout_width="100dp"
+            android:layout_height="35dp"
+            android:layout_alignLeft="@+id/textView6"
+            android:layout_below="@+id/textView6"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="5dp"
+            android:text="Switch" 
+            android:textOff="OFF"  
+            android:textOn="ON"/>
        
     </RelativeLayout>
     

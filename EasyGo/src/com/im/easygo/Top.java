@@ -1,4 +1,4 @@
-package com.im.easygo;
+﻿package com.im.easygo;
 
 import com.facebook.AppEventsLogger;
 import android.content.Intent;

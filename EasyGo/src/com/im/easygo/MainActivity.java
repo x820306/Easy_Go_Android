@@ -1,4 +1,4 @@
-package com.im.easygo;
+Ôªøpackage com.im.easygo;
 
 
 import android.annotation.SuppressLint;
@@ -16,6 +16,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.view.*;
 import android.webkit.*;
 import android.widget.*;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.content.DialogInterface;
 import android.content.Intent;
 
@@ -64,6 +65,7 @@ public class MainActivity extends Activity{
 	private Button timerBtn;
 	private Button saveRouteBtn;
 	private Button rpCategoryBtn;
+	private Switch IIIswitch;
 	private LocationManager Lmgr;
 	private LocationManager Lmgr2;
 	private String bestLocationProvider;
@@ -108,7 +110,11 @@ public class MainActivity extends Activity{
 	private int timerBtnFlag=0;
 	private int totalSec=0;
 	private int limit;
+	private int categoryIndex;
+	private int leftTimes;
+	private boolean allFlag;
 	private int HttpTimeoutFlag=0;
+	private int serApiFlag=0;
 	private Timer timer1;
 	private String cookie;
 	private String uid;
@@ -139,6 +145,7 @@ public class MainActivity extends Activity{
         rpCategoryBtn=(Button)findViewById(R.id.button8);
         leftInfoText=(TextView)findViewById(R.id.textView3);
         rightInfoText=(TextView)findViewById(R.id.textView4);
+        IIIswitch=(Switch)findViewById(R.id.switch1);
        
         mWebView = (WebView)findViewById(R.id.webView1);
         mWebView.setWebChromeClient(new WebChromeClient());
@@ -222,6 +229,19 @@ public class MainActivity extends Activity{
         };
         
         
+        IIIswitch.setOnCheckedChangeListener(new OnCheckedChangeListener() {  
+        	  
+            @Override  
+            public void onCheckedChanged(CompoundButton buttonView,  
+                    boolean isChecked) {    
+                if (isChecked) {  
+                	serApiFlag=1;  
+                } else {  
+                	serApiFlag=0;  
+                }  
+            }  
+        });  
+         
         timerBtn.setOnClickListener(new Button.OnClickListener(){
         	@Override
         	public void onClick(View v) {
@@ -301,6 +321,7 @@ public class MainActivity extends Activity{
         				findRoadPointBtn.setEnabled(false);
         				chooseRoadPointBtn.setEnabled(false);
 						rdmBtn.setEnabled(false);
+						IIIswitch.setEnabled(false);
         				
         				startAddress=startLocation.getText().toString();
         				endAddress=endLocation.getText().toString();
@@ -355,7 +376,7 @@ public class MainActivity extends Activity{
         						if(localCtr==6)
         						{
         							chooseRoadPointBtn.setEnabled(false);
-        							Toast.makeText(MainActivity.this,"§wπF§W≠≠", 100).show();
+        							Toast.makeText(MainActivity.this,"Â∑≤ÈÅî‰∏äÈôê", 100).show();
         							dialog.cancel();
         						}
         						
@@ -366,13 +387,13 @@ public class MainActivity extends Activity{
         			}
         		});
         		
-        		/*builder.setPositiveButton("ΩT©w", new DialogInterface.OnClickListener() {
+        		/*builder.setPositiveButton("Á¢∫ÂÆö", new DialogInterface.OnClickListener() {
         			public void onClick(DialogInterface dialog, int whichButton) {
         				//Toast.makeText(MainActivity.this,"aaa", 100).show();  
         			}
         		});
         			
-        		builder.setNegativeButton("®˙Æ¯", new DialogInterface.OnClickListener() {
+        		builder.setNegativeButton("ÂèñÊ∂à", new DialogInterface.OnClickListener() {
         			public void onClick(DialogInterface dialog, int whichButton) {
         			 
         			}
@@ -489,31 +510,31 @@ public class MainActivity extends Activity{
     	categoryChosen=new ArrayList<Integer>();
     	categoryValue=new ArrayList<String>();
     	
-    	categoryName.add("∞”∞»"); categoryValue.add("Local business"); categoryChosen.add(0);
-    	categoryName.add("¿\∆U"); categoryValue.add("Restaurant/cafe"); categoryChosen.add(0);
-    	categoryName.add("Æ»¿]"); categoryValue.add("Hotel"); categoryChosen.add(0);
-    	categoryName.add("•∂¢"); categoryValue.add("Travel/leisure"); categoryChosen.add(0);
-    	categoryName.add("æ«Æ’"); categoryValue.add("School"); categoryChosen.add(0);
-    	categoryName.add("¶aº–"); categoryValue.add("Landmark"); categoryChosen.add(0);
-    	categoryName.add("∆[•˙"); categoryValue.add("Tours/sightseeing"); categoryChosen.add(0);
-    	categoryName.add("ÆTº÷"); categoryValue.add("Arts/entertainment/nightlife"); categoryChosen.add(0);
-    	categoryName.add("¡ ™´"); categoryValue.add("Shopping/retail"); categoryChosen.add(0);
-    	categoryName.add("¨¸Æe"); categoryValue.add("Health/beauty"); categoryChosen.add(0);
-    	categoryName.add("≠π´~"); categoryValue.add("Food/grocery"); categoryChosen.add(0);
-    	categoryName.add("∂ºÆ∆"); categoryValue.add("Food/beverages"); categoryChosen.add(0);
-    	categoryName.add("™Aπ¢"); categoryValue.add("Clothing"); categoryChosen.add(0);
-    	categoryName.add("©v±–"); categoryValue.add("Church/religious organization"); categoryChosen.add(0);
-    	categoryName.add("≥’™´¿]"); categoryValue.add("Museum/art gallery"); categoryChosen.add(0);
-    	categoryName.add("≈È®|¿]"); categoryValue.add("Sports venue"); categoryChosen.add(0);
-    	categoryName.add("∞sßa"); categoryValue.add("Bar"); categoryChosen.add(0);
-    	categoryName.add("≠—º÷≥°"); categoryValue.add("Club"); categoryChosen.add(0);
-    	categoryName.add("πœÆ—¿]"); categoryValue.add("Library"); categoryChosen.add(0);
-    	categoryName.add("πs∞‚©±"); categoryValue.add("Retail and consumer merchandise"); categoryChosen.add(0);
-    	categoryName.add("Æ—©±"); categoryValue.add("Book store"); categoryChosen.add(0);
-    	categoryName.add("¨F©≤"); categoryValue.add("Government organization"); categoryChosen.add(0);
-    	categoryName.add("πqºv∞|"); categoryValue.add("Movie theater"); categoryChosen.add(0);
-    	categoryName.add("Ø]ƒ_"); categoryValue.add("Jewelry/watches"); categoryChosen.add(0);
-    	categoryName.add("∞|©“"); categoryValue.add("Hospital/clinic"); categoryChosen.add(0);
+    	categoryName.add("ÂïÜÂãô"); categoryValue.add("Local business"); categoryChosen.add(0);
+    	categoryName.add("È§êÂª≥"); categoryValue.add("Restaurant/cafe"); categoryChosen.add(0);
+    	categoryName.add("ÊóÖÈ§®"); categoryValue.add("Hotel"); categoryChosen.add(0);
+    	categoryName.add("‰ºëÈñí"); categoryValue.add("Travel/leisure"); categoryChosen.add(0);
+    	categoryName.add("Â≠∏Ê†°"); categoryValue.add("School"); categoryChosen.add(0);
+    	categoryName.add("Âú∞Ê®ô"); categoryValue.add("Landmark"); categoryChosen.add(0);
+    	categoryName.add("ËßÄÂÖâ"); categoryValue.add("Tours/sightseeing"); categoryChosen.add(0);
+    	categoryName.add("Â®õÊ®Ç"); categoryValue.add("Arts/entertainment/nightlife"); categoryChosen.add(0);
+    	categoryName.add("Ë≥ºÁâ©"); categoryValue.add("Shopping/retail"); categoryChosen.add(0);
+    	categoryName.add("ÁæéÂÆπ"); categoryValue.add("Health/beauty"); categoryChosen.add(0);
+    	categoryName.add("È£üÂìÅ"); categoryValue.add("Food/grocery"); categoryChosen.add(0);
+    	categoryName.add("È£≤Êñô"); categoryValue.add("Food/beverages"); categoryChosen.add(0);
+    	categoryName.add("ÊúçÈ£æ"); categoryValue.add("Clothing"); categoryChosen.add(0);
+    	categoryName.add("ÂÆóÊïô"); categoryValue.add("Church/religious organization"); categoryChosen.add(0);
+    	categoryName.add("ÂçöÁâ©È§®"); categoryValue.add("Museum/art gallery"); categoryChosen.add(0);
+    	categoryName.add("È´îËÇ≤È§®"); categoryValue.add("Sports venue"); categoryChosen.add(0);
+    	categoryName.add("ÈÖíÂêß"); categoryValue.add("Bar"); categoryChosen.add(0);
+    	categoryName.add("‰ø±Ê®ÇÈÉ®"); categoryValue.add("Club"); categoryChosen.add(0);
+    	categoryName.add("ÂúñÊõ∏È§®"); categoryValue.add("Library"); categoryChosen.add(0);
+    	categoryName.add("Èõ∂ÂîÆÂ∫ó"); categoryValue.add("Retail and consumer merchandise"); categoryChosen.add(0);
+    	categoryName.add("Êõ∏Â∫ó"); categoryValue.add("Book store"); categoryChosen.add(0);
+    	categoryName.add("ÊîøÂ∫ú"); categoryValue.add("Government organization"); categoryChosen.add(0);
+    	categoryName.add("ÈõªÂΩ±Èô¢"); categoryValue.add("Movie theater"); categoryChosen.add(0);
+    	categoryName.add("Áè†ÂØ∂"); categoryValue.add("Jewelry/watches"); categoryChosen.add(0);
+    	categoryName.add("Èô¢ÊâÄ"); categoryValue.add("Hospital/clinic"); categoryChosen.add(0);
     	
 		chooseRoadPointBtn.setEnabled(false);
 		rdmBtn.setEnabled(false);
@@ -639,13 +660,6 @@ public class MainActivity extends Activity{
 	    
 	    public void goByflag() {  
 	       
-	    	/*runOnUiThread(new Runnable() {
-	            public void run() {
-	            	mWebView.loadUrl("javascript:alert('"+goflag+"')");
-	           }
-	       });*/
-	    	
-	    	
 	    	if(goflag==1)
 	    	{
 	    		runOnUiThread(new Runnable() {
@@ -673,7 +687,7 @@ public class MainActivity extends Activity{
 	    
 
 	    
-	    public void httpPost(final String postUrl,final List<NameValuePair> params,final int postFlag){
+	    public String httpPost(final String postUrl,final List<NameValuePair> params){
 	    	
 					HttpPost post=new HttpPost(postUrl);  
 					 try {
@@ -681,27 +695,34 @@ public class MainActivity extends Activity{
 						
 						 
 						HttpParams httpParameters=new BasicHttpParams();
-						HttpConnectionParams.setConnectionTimeout(httpParameters, 8000);
-						HttpConnectionParams.setSoTimeout(httpParameters, 10000);
+						HttpConnectionParams.setConnectionTimeout(httpParameters, 15000);
+						HttpConnectionParams.setSoTimeout(httpParameters, 20000);
 						DefaultHttpClient client=new DefaultHttpClient(httpParameters); 
 	                    HttpResponse response=client.execute(post);  
 	                    if(response.getStatusLine().getStatusCode()==200){  
 	                        final String content=EntityUtils.toString(response.getEntity());     
 	                        
-	                        analysisJSON(content,postFlag);  
-	                    } 
+	                        return content;
+	                    }else{
+	                    	HttpTimeoutFlag=1;
+	                    	return "null";
+	                    }
 					}catch (ConnectTimeoutException e) {  
 						HttpTimeoutFlag=1;
 						e.printStackTrace();  
+						return "null";
 	                }catch (SocketTimeoutException e) {  
 						HttpTimeoutFlag=1;
 						e.printStackTrace();  
+						return "null";
 	                }catch (ClientProtocolException e) { 
 	                	HttpTimeoutFlag=1;
 	                    e.printStackTrace();  
+	                    return "null";
 	                } catch (IOException e) {
 	                	HttpTimeoutFlag=1;
-	                    e.printStackTrace();  
+	                    e.printStackTrace(); 
+	                    return "null";
 	                }  
 			
 	    }
@@ -770,7 +791,7 @@ public class MainActivity extends Activity{
 	    				
 							for(a=0;a<roadPointTitle.size();a++)
 							{
-								roadPointTitle.set(a,roadPointTitle.get(a)+"#±¿¬À¶a¬I");
+								roadPointTitle.set(a,roadPointTitle.get(a)+"#Êé®Ëñ¶Âú∞Èªû");
 								roadPointLocationChosen.add(0);
 							}		
 	    			}
@@ -778,7 +799,7 @@ public class MainActivity extends Activity{
 	    			e.printStackTrace();
 	    		}  
 
-	        }else if(postFlag==1){
+	        }else if(postFlag==2){
 	        	
 	        	try {
 	    			final JSONObject obj = new JSONObject(content);
@@ -802,7 +823,7 @@ public class MainActivity extends Activity{
 									e.printStackTrace();
 								}
 								
-								roadPointTitle.add(tempp2+"#§HÆ´◊:"+dataAry.getJSONObject(a).getString("checkins"));
+								roadPointTitle.add(tempp2+"#‰∫∫Ê∞£Â∫¶:"+dataAry.getJSONObject(a).getString("checkins"));
 								roadPointLocation.add(dataAry.getJSONObject(a).getString("latitude")+","+dataAry.getJSONObject(a).getString("longitude"));
 								roadPointLocationChosen.add(0);
 							}	
@@ -811,7 +832,7 @@ public class MainActivity extends Activity{
 	    		} catch (JSONException e) {
 	    			e.printStackTrace();
 	    		}  
-	        }else if(postFlag==2){
+	        }else if(postFlag==1){
 	        	
 	        	try {
 	    			final JSONObject obj = new JSONObject(content);
@@ -828,53 +849,6 @@ public class MainActivity extends Activity{
 	    }  
 	    
 	    
-	    public void postData(final int postFlag){
-	    	if(postFlag==0){
-	    		String postUrl="http://easygo.ballchen.cc/check_roadpoint";
-	    		List<NameValuePair> params=new ArrayList<NameValuePair>();  
-                params.add(new BasicNameValuePair("lat_self", centerlt));  
-                params.add(new BasicNameValuePair("lon_self", centerlg));  
-                params.add(new BasicNameValuePair("rad", rad)); 
-                httpPost(postUrl,params,postFlag);
-	    	}else if(postFlag==2){
-	    		String postUrl="http://api.ser.ideas.iii.org.tw/api/user/get_token";
-	    		List<NameValuePair> params=new ArrayList<NameValuePair>();  
-                params.add(new BasicNameValuePair("id", "277b49909b1d1400b8a139f0d575cad5"));  
-                params.add(new BasicNameValuePair("secret_key", "2681a844c37d538bbd53d5ac101a3f43"));  
-                httpPost(postUrl,params,postFlag);	
-	    	}
-	    	
-	    }
-	    
-	    public void postData2(int categoryIndex,int leftTimes,boolean allFlag){
-	    	String postUrl="http://api.ser.ideas.iii.org.tw/api/fb_checkin_search";
-	    	List<NameValuePair> params=new ArrayList<NameValuePair>();  
-	
-	    	 params.add(new BasicNameValuePair("coordinates", center));
-    		 params.add(new BasicNameValuePair("radius", rad));
-    		 params.add(new BasicNameValuePair("limit", String.valueOf(limit)));
-    		 params.add(new BasicNameValuePair("token", iiiToken));
-    		 
-    		 if(!keywordString.equals("null")){
-    			 params.add(new BasicNameValuePair("keyword",keywordString));
-    		 }
-	    	
-	    	if(!allFlag){
-	    		params.add(new BasicNameValuePair("category",categorySend.get(categoryIndex)));
-	    	}
-	    	
-	    	httpPost(postUrl,params,1);
-	    	
-	    	leftTimes--;
-	    	
-	    	if((leftTimes!=0)&&(limit>0))
-			{
-	    		categoryIndex++;
-	    		postData2(categoryIndex,leftTimes,false);
-			}
-	    	
-	    }
-	    
 	    public void iiiRPsetting(){
 	    	int i;
 	    	categorySend=new ArrayList<String>();
@@ -887,19 +861,24 @@ public class MainActivity extends Activity{
 	    	}
 	    	
 	    	limit=20;
+	    	categoryIndex=0;
+	    	
+	    	if(categorySend.size()==0)
+	    	{
+	    		leftTimes=1;
+	    		allFlag=true;
+	    	}else if(categorySend.size()>0){
+	    		leftTimes=categorySend.size();
+	    		allFlag=false;
+	    	}
+	    	
 	    	if(!keyword.getText().toString().trim().equals("")){
 	    		keywordString=keyword.getText().toString();
    		 	}else{
    		 		keywordString="null";
    		 	}
 	    	
-	    	if(categorySend.size()==0)
-	    	{
-	    		postData2(0,1,true);
-	    	}else if(categorySend.size()>0){
-	    		postData2(0,categorySend.size(),false);
-	    	}
-	    	
+	    	new postData2().execute();
 	    }
 	    
 	    public void routeKiller(){
@@ -927,6 +906,26 @@ public class MainActivity extends Activity{
 	            	mWebView.loadUrl("javascript:killRoute()");
 	           }
 	       });
+	    }
+	    
+	    public void frpEnding(){
+	    	if(roadPointTitle.size()>0){
+		            	chooseRoadPointBtn.setEnabled(true);
+						rdmBtn.setEnabled(true);
+		            	mWebView.loadUrl("javascript:setMarkers("+roadPointTitle.size()+")");
+	    	}
+	    	
+	    	findRoadPointBtn.setEnabled(true);
+	    	IIIswitch.setEnabled(true);
+	    	goflag=1;
+	    	cancelflag=1;
+	    	
+	    	if(HttpTimeoutFlag==1){
+	    		Toast.makeText(MainActivity.this,"HTTPÈÄ£Á∑öË∂ÖÊôÇÔºåË∑ØÈªûÂèØËÉΩÂõ†Ê≠§Áü≠Áº∫\nÊâæÂà∞"+roadPointTitle.size()+"ÂÄãË∑ØÈªû", 100).show();
+			}else{
+				Toast.makeText(MainActivity.this,"ÊâæÂà∞"+roadPointTitle.size()+"ÂÄãË∑ØÈªû", 100).show();
+			}
+	    	
 	    }
 	    
 	    
@@ -965,42 +964,16 @@ public class MainActivity extends Activity{
 			roadPointTitle=new ArrayList<String>();
 			roadPointLocationChosen=new ArrayList<Integer>();
 			HttpTimeoutFlag=0;
-	    	
-	    	postData(0);
-	    	
-	    	//postData(2);
-	    	
-	    	if(roadPointTitle.size()==0){
-	    		runOnUiThread(new Runnable() {
-		            public void run() {
-						mWebView.loadUrl("javascript:killRPmarkers()");
-		           }
-		       });
-	    	}else{
-	    		runOnUiThread(new Runnable() {
-		            public void run() {
-		            	chooseRoadPointBtn.setEnabled(true);
-						rdmBtn.setEnabled(true);
-						mWebView.loadUrl("javascript:killRPmarkers()");
-		            	mWebView.loadUrl("javascript:setMarkers("+roadPointTitle.size()+")");
-		           }
-		       });
-	    	}
-	    	
-	    	
-	    	runOnUiThread(new Runnable() {
+			
+			runOnUiThread(new Runnable() {
 	            public void run() {
-	            	findRoadPointBtn.setEnabled(true);
+	            	mWebView.loadUrl("javascript:killRPmarkers()");
+	            	new postData0().execute();
 	           }
 	       });
-	    	goflag=1;
-	    	cancelflag=1;
 	    	
-	    	if(HttpTimeoutFlag==1){
-	    		Toast.makeText(MainActivity.this,"HTTP≥sΩu∂WÆ…°A∏Ù¬I•iØ‡¶]¶πµuØ \nß‰®Ï"+roadPointTitle.size()+"≠”∏Ù¬I", 100).show();
-			}else{
-				Toast.makeText(MainActivity.this,"ß‰®Ï"+roadPointTitle.size()+"≠”∏Ù¬I", 100).show();
-			}
+	    	
+	    	
 	     }
 	    
 	    @JavascriptInterface
@@ -1012,7 +985,7 @@ public class MainActivity extends Activity{
 	    	
 	    	runOnUiThread(new Runnable() {
             public void run() {
-            	leftInfoText.setText(distance+"§Ω®Ω\n"+duration+"§¿ƒ¡");
+            	leftInfoText.setText(distance+"ÂÖ¨Èáå\n"+duration+"ÂàÜÈêò");
             	rightInfoText.setText("00:00:00");
             	timerBtn.setEnabled(true);
             	
@@ -1030,7 +1003,7 @@ public class MainActivity extends Activity{
 	    	
 	    	runOnUiThread(new Runnable() {
 	    		public void run() {
-            		leftInfoText.setText(distance+"§Ω®Ω\n"+duration+"§¿ƒ¡");
+            		leftInfoText.setText(distance+"ÂÖ¨Èáå\n"+duration+"ÂàÜÈêò");
             		rightInfoText.setText("00:00:00");
             		timerBtn.setEnabled(true);
             	}
@@ -1097,7 +1070,7 @@ public class MainActivity extends Activity{
 	    	if(roadPointLocationChosen.get(Rec)==1)
 	    	{
 	    		flagGG=1;
-	    		Toast.makeText(MainActivity.this,"≠´Ω∆øÔæ‹≈o", 100).show();
+	    		Toast.makeText(MainActivity.this,"ÈáçË§áÈÅ∏ÊìáÂõâ", 100).show();
 	    	}
 	    	
 	    	for(j=0;j<roadPointLocationChosen.size();j++)
@@ -1110,7 +1083,7 @@ public class MainActivity extends Activity{
 	    	
 	    	if((flagGG==0)&&(chosenCtr<6)){
 	    		roadPointLocationChosen.set(Rec,1);
-	    		Toast.makeText(MainActivity.this,"§wøÔæ‹", 100).show();
+	    		Toast.makeText(MainActivity.this,"Â∑≤ÈÅ∏Êìá", 100).show();
 	    		chosenCtr++;
 	    		   
 	    		if(chosenCtr==6)
@@ -1123,7 +1096,7 @@ public class MainActivity extends Activity{
 	    		}
 	    	}
 	    	else if((flagGG==0)&&(chosenCtr==6)){
-	    		Toast.makeText(MainActivity.this,"§wπF§W≠≠", 100).show();
+	    		Toast.makeText(MainActivity.this,"Â∑≤ÈÅî‰∏äÈôê", 100).show();
 	    	}
 	     }
 	    
@@ -1271,7 +1244,7 @@ public class MainActivity extends Activity{
 	                
 	                if(response.getStatusLine().getStatusCode()==201){  
 	                   flag2=1;
-	                } else{
+	                }else{
 	                   flag2=0;
 	                	
 	                }
@@ -1289,9 +1262,110 @@ public class MainActivity extends Activity{
 			protected void onPostExecute(String result)
 	        {
 				if(flag2==0){
-					Toast.makeText(MainActivity.this,"¶¨¬√•¢±—",100).show();
+					Toast.makeText(MainActivity.this,"Êî∂ËóèÂ§±Êïó",100).show();
 				}else{
-					Toast.makeText(MainActivity.this,"¶¨¬√¶®•\",100).show();
+					Toast.makeText(MainActivity.this,"Êî∂ËóèÊàêÂäü",100).show();
+				}
+	        }
+	    }
+	    
+	    private class postData0 extends AsyncTask<Void,Void,String>
+	    {
+			@Override
+			protected String doInBackground(Void... arg0) {
+				String content = "null";
+				
+		    	String postUrl="http://easygo.ballchen.cc/check_roadpoint";
+		    	List<NameValuePair> params=new ArrayList<NameValuePair>();  
+	            params.add(new BasicNameValuePair("lat_self", centerlt));  
+	            params.add(new BasicNameValuePair("lon_self", centerlg));  
+	            params.add(new BasicNameValuePair("rad", rad)); 
+	            content=httpPost(postUrl,params);
+		    	
+				return content;
+			}
+			
+			@Override
+			protected void onPostExecute(String result)
+	        {
+				if(!result.equals("null")){
+					 analysisJSON(result,0);  
+				}
+				
+				if(serApiFlag==0){
+					frpEnding();
+				}else if(serApiFlag==1){
+					new postData1().execute();
+				}
+	        }
+	    }
+	    
+	    private class postData1 extends AsyncTask<Void,Void, String>
+	    {
+			@Override
+			protected String doInBackground(Void... arg0) {
+				String content = "null";
+				
+	            String postUrl="http://api.ser.ideas.iii.org.tw/api/user/get_token";
+	    		List<NameValuePair> params=new ArrayList<NameValuePair>();  
+                params.add(new BasicNameValuePair("id", "277b49909b1d1400b8a139f0d575cad5"));  
+                params.add(new BasicNameValuePair("secret_key", "2681a844c37d538bbd53d5ac101a3f43"));  
+                content=httpPost(postUrl,params);	
+		    	
+				return content;
+			}
+			
+			@Override
+			protected void onPostExecute(String result)
+	        {
+				if(!result.equals("null")){
+					 analysisJSON(result,1);  
+				}
+	        }
+	    }
+	    
+	    private class postData2 extends AsyncTask<Void,Void, String>
+	    {
+			@Override
+			protected String doInBackground(Void... arg0) {
+				String content = "null";
+				
+				String postUrl="http://api.ser.ideas.iii.org.tw/api/fb_checkin_search";
+		    	List<NameValuePair> params=new ArrayList<NameValuePair>();  
+		
+		    	 params.add(new BasicNameValuePair("coordinates", center));
+	    		 params.add(new BasicNameValuePair("radius", rad));
+	    		 params.add(new BasicNameValuePair("limit", String.valueOf(limit)));
+	    		 params.add(new BasicNameValuePair("token", iiiToken));
+	    		 
+	    		 if(!keywordString.equals("null")){
+	    			 params.add(new BasicNameValuePair("keyword",keywordString));
+	    		 }
+		    	
+		    	if(!allFlag){
+		    		params.add(new BasicNameValuePair("category",categorySend.get(categoryIndex)));
+		    	}
+		    	
+		    	content=httpPost(postUrl,params);
+		    	
+				return content;
+			}
+			
+			@Override
+			protected void onPostExecute(String result)
+	        {
+				if(!result.equals("null")){
+					 analysisJSON(result,2);  
+				}
+				
+				leftTimes--;
+		    	
+		    	if((leftTimes!=0)&&(limit>0))
+				{
+		    		categoryIndex++;
+		    		new postData2().execute();
+				}else{
+					frpEnding();
 				}
 	        }
 	    }

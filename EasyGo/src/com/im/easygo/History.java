@@ -1,4 +1,4 @@
-package com.im.easygo;
+Ôªøpackage com.im.easygo;
 
 import java.io.IOException;
 
@@ -145,7 +145,7 @@ public class History extends Activity {
 							int k=i+1;
 							final int g=i;
 							Button tempBtn = new Button(History.this);
-					    	tempBtn.setText("∏ÙΩu"+k);
+					    	tempBtn.setText("Ë∑ØÁ∑ö"+k);
 					    	ll.addView( tempBtn );
 					    	
 					    	tempBtn.setOnClickListener(new Button.OnClickListener(){
@@ -169,7 +169,7 @@ public class History extends Activity {
 					         	}
 					         });
 						}
-						Toast.makeText(History.this, "ß‰®Ï"+String.valueOf(dataAry.length())+"±¯∏ÙΩu",100).show();
+						Toast.makeText(History.this, "ÊâæÂà∞"+String.valueOf(dataAry.length())+"Ê¢ùË∑ØÁ∑ö",100).show();
 	    			
 					}catch (JSONException e) {
 		    			e.printStackTrace();

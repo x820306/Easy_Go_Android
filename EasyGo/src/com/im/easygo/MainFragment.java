@@ -1,4 +1,4 @@
-package com.im.easygo;  
+ï»¿package com.im.easygo;  
 
   
 
@@ -214,7 +214,7 @@ public class MainFragment extends Fragment {
 			goImgBtn.setEnabled(true);
 			if(!cookie.equals("null")){
 				historyImgBtn.setEnabled(true);
-				Toast.makeText(getActivity(), "µn¤J¦¨¥\",100).show();
+				Toast.makeText(getActivity(), "ç™»å…¥æˆåŠŸ",100).show();
 			}
         }
     }
@@ -262,7 +262,7 @@ public class MainFragment extends Fragment {
 				historyImgBtn.setEnabled(false);
 	            cookie="null";
 	            mSession=null;
-	            Toast.makeText(getActivity(), "µn¥X¦¨¥\",100).show();
+	            Toast.makeText(getActivity(), "ç™»å‡ºæˆåŠŸ",100).show();
 			}
 			goImgBtn.setEnabled(true);
         }
