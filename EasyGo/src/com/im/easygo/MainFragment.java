@@ -126,6 +126,7 @@ public class MainFragment extends Fragment {
             
             if(!cookie.equals("null")){
             	goImgBtn.setEnabled(false);
+            	historyImgBtn.setEnabled(false);
             	new logOut().execute(cookie);
             }
             
@@ -258,8 +259,6 @@ public class MainFragment extends Fragment {
 			if(flag==0){
 				Toast.makeText(getActivity(), result,100).show();	
 			}else if(flag==1){
-				
-				historyImgBtn.setEnabled(false);
 	            cookie="null";
 	            mSession=null;
 	            Toast.makeText(getActivity(), "登出成功",100).show();
