@@ -112,6 +112,7 @@ public class MainActivity extends Activity{
 	private int limit;
 	private int categoryIndex;
 	private int leftTimes;
+	private int repeatTimes=0;
 	private boolean allFlag;
 	private int HttpTimeoutFlag=0;
 	private int serApiFlag=0;
@@ -837,6 +838,7 @@ public class MainActivity extends Activity{
    		 		keywordString="null";
    		 	}
 	    	
+	    	//repeatTimes=0;
 	    	new postData2().execute();
 	    }
 	    
@@ -880,7 +882,7 @@ public class MainActivity extends Activity{
 	    	cancelflag=1;
 	    	
 	    	if(HttpTimeoutFlag==1){
-	    		Toast.makeText(MainActivity.this,"HTTP連線超時，路點可能因此短缺\n找到"+roadPointTitle.size()+"個路點", 100).show();
+	    		Toast.makeText(MainActivity.this,"HTTP連線錯誤，路點可能因此短缺\n找到"+roadPointTitle.size()+"個路點", 100).show();
 			}else{
 				Toast.makeText(MainActivity.this,"找到"+roadPointTitle.size()+"個路點", 100).show();
 			}
@@ -927,6 +929,7 @@ public class MainActivity extends Activity{
 			runOnUiThread(new Runnable() {
 	            public void run() {
 	            	mWebView.loadUrl("javascript:killRPmarkers()");
+	            	repeatTimes=0;
 	            	new postData0().execute();
 	           }
 	       });
@@ -1245,8 +1248,8 @@ public class MainActivity extends Activity{
 					post.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
 					
 					HttpParams httpParameters=new BasicHttpParams();
-					HttpConnectionParams.setConnectionTimeout(httpParameters, 15000);
-					HttpConnectionParams.setSoTimeout(httpParameters, 15000);
+					HttpConnectionParams.setConnectionTimeout(httpParameters, 30000);
+					HttpConnectionParams.setSoTimeout(httpParameters, 30000);
 					HttpClient client=new DefaultHttpClient(httpParameters); 
                     HttpResponse response=client.execute(post);  
                    if(response.getStatusLine().getStatusCode()==200){  
@@ -1254,39 +1257,57 @@ public class MainActivity extends Activity{
                        
                        return content;
                    }else{
-                   	HttpTimeoutFlag=1;
-                   	return "null";
+                   
+                   	return "null2";
                    }
 				}catch (ConnectTimeoutException e) {  
-					HttpTimeoutFlag=1;
+					
 					e.printStackTrace();  
 					return "null";
                }catch (SocketTimeoutException e) {  
-					HttpTimeoutFlag=1;
+					
 					e.printStackTrace();  
 					return "null";
                }catch (ClientProtocolException e) { 
-               	HttpTimeoutFlag=1;
+               	
                    e.printStackTrace();  
-                   return "null";
+                   return "null2";
                } catch (IOException e) {
-               	HttpTimeoutFlag=1;
+               	
                    e.printStackTrace(); 
-                   return "null";
+                   return "null2";
                }
 			}
 			
 			@Override
 			protected void onPostExecute(String result)
 	        {
-				if(!result.equals("null")){
-					 analysisJSON(result,0);  
-				}
+	
+				//Toast.makeText(MainActivity.this,result,100).show();
 				
-				if(serApiFlag==0){
+				if(result.equals("null")){
+					if(repeatTimes<3){
+						repeatTimes++;
+						Toast.makeText(MainActivity.this,"連線逾時重新發起連線中",100).show();
+						new postData0().execute();
+					}else{
+						repeatTimes=0;
+						HttpTimeoutFlag=1;
+						frpEnding();
+					}
+					
+				}else if(result.equals("null2")){
+					HttpTimeoutFlag=1;
 					frpEnding();
-				}else if(serApiFlag==1){
-					new postData1().execute();
+				}else{
+					 analysisJSON(result,0);  
+					 
+					 if(serApiFlag==0){
+							frpEnding();
+					 }else if(serApiFlag==1){
+						    repeatTimes=0;
+							new postData1().execute();
+					 }
 				}
 	        }
 	    }
@@ -1316,35 +1337,46 @@ public class MainActivity extends Activity{
                       
                       return content;
                   }else{
-                  	HttpTimeoutFlag=1;
-                  	return "null";
+   
+                  	return "null2";
                   }
 				}catch (ConnectTimeoutException e) {  
-					HttpTimeoutFlag=1;
+					
 					e.printStackTrace();  
 					return "null";
               }catch (SocketTimeoutException e) {  
-					HttpTimeoutFlag=1;
+					
 					e.printStackTrace();  
 					return "null";
               }catch (ClientProtocolException e) { 
-              	HttpTimeoutFlag=1;
+              	
                   e.printStackTrace();  
-                  return "null";
+                  return "null2";
               } catch (IOException e) {
-              	HttpTimeoutFlag=1;
+              	
                   e.printStackTrace(); 
-                  return "null";
+                  return "null2";
               }
 			}
 			
 			@Override
 			protected void onPostExecute(String result)
-	        {
-				if(!result.equals("null")){
-					 analysisJSON(result,1);  
-				}else{
+	        {	
+				if(result.equals("null")){
+					if(repeatTimes<3){
+						repeatTimes++;
+						Toast.makeText(MainActivity.this,"連線逾時重新發起連線中",100).show();
+						new postData1().execute();
+					}else{
+						repeatTimes=0;
+						HttpTimeoutFlag=1;
+						frpEnding();
+					}
+				}else if(result.equals("null2")){
+					HttpTimeoutFlag=1;
 					frpEnding();
+				}else{
+					analysisJSON(result,1); 
 				}
 	        }
 	    }
@@ -1412,17 +1444,51 @@ public class MainActivity extends Activity{
 	        {
 				if(!result.equals("null")){
 					 analysisJSON(result,2);  
-				}
-				
-				leftTimes--;
-		    	
-		    	if((leftTimes!=0)&&(limit>0))
-				{
-		    		categoryIndex++;
-		    		new postData2().execute();
+					 
+					 leftTimes--;
+				    	
+				     if((leftTimes!=0)&&(limit>0))
+					 {
+				    	categoryIndex++;
+				    	new postData2().execute();
+					 }else{
+						frpEnding();
+					 }
 				}else{
 					frpEnding();
 				}
+				
+				
+		    	
+				/*
+				   if(result.equals("null")){
+				   		if(repeatTimes<3){
+							repeatTimes++;
+							Toast.makeText(MainActivity.this,"連線逾時重新發起連線中",100).show();
+							new postData2().execute();
+						}else{
+							repeatTimes=0;
+							HttpTimeoutFlag=1;
+							frpEnding();
+						}
+				   }else if(result.equals("null2")){
+						HttpTimeoutFlag=1;
+						frpEnding();
+				   }else{
+				   		analysisJSON(result,2);  
+					 	leftTimes--;
+				    	
+				     	if((leftTimes!=0)&&(limit>0))
+					 	{
+				    		categoryIndex++;
+				    		repeatTimes=0;
+				    		new postData2().execute();
+					 	}else{
+							frpEnding();
+					 	}
+				   }*/
+				   //keep sending the same http request when not get data in time
+				  //DO NOT use these codes while there is still usage limit on SER(III) API   
 	        }
 	    }
 	    
