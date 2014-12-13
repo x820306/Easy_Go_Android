@@ -116,13 +116,15 @@ public class MainActivity extends Activity{
 	private boolean allFlag;
 	private int HttpTimeoutFlag=0;
 	private int serApiFlag=0;
+	private int rpChosenNumber=0;
 	private Timer timer1;
 	private String cookie;
 	private String uid;
 	private String savedPath;
-	private int flag;
-	private int flag2;
+	private int flag=0;
+	private int flag2=0;
 	private Bundle bundle;
+	private String[] num={"零","一","二","三","四","五","六"};
 
 	
 	
@@ -308,6 +310,7 @@ public class MainActivity extends Activity{
         			
         			path=path+"{\"land\":\""+endLatLng+"\",\"name\":\""+endAddress+"\"}";
         			
+        			flag2=0;
         			new postSaveRoute().execute(path,uid);
         		}
         	}
@@ -365,6 +368,8 @@ public class MainActivity extends Activity{
         						int o;
         						int localCtr=0;
         						roadPointLocationChosen.set(whichButton,1);
+        						rpChosenNumber++;
+        						mWebView.loadUrl("javascript:setChosenIcon("+String.valueOf(whichButton)+")");
         						
         						for(o=0;o<roadPointLocationChosen.size();o++)
         						{
@@ -383,6 +388,14 @@ public class MainActivity extends Activity{
         						
         					}else {
         						roadPointLocationChosen.set(whichButton,0);
+        						rpChosenNumber--;
+        						mWebView.loadUrl("javascript:setOrgIcon("+String.valueOf(whichButton)+")");
+        					}
+        					
+        					if(rpChosenNumber>0){
+        						chooseRoadPointBtn.setText("已選"+num[rpChosenNumber]+"點");
+        					}else if(rpChosenNumber==0){
+        						chooseRoadPointBtn.setText("選擇路點");
         					}
         					 
         			}
@@ -455,6 +468,7 @@ public class MainActivity extends Activity{
 
         		if(rngMax>0)
         		{
+        			rpChosenNumber=0;
         			if(rngMax<5)
         			{
         				crr=(int)(Math.random()*rngMax+1);
@@ -487,15 +501,19 @@ public class MainActivity extends Activity{
         			for(j=0;j<roadPointLocationChosen.size();j++)
         			{
         				roadPointLocationChosen.set(j,0);
+        				mWebView.loadUrl("javascript:setOrgIcon("+String.valueOf(j)+")");
         				
         		    }
 
         			for(j=0;j<haha.size();j++)
         			{
         				roadPointLocationChosen.set(haha.get(j)-1,1);
-        				
+        				mWebView.loadUrl("javascript:setChosenIcon("+String.valueOf(haha.get(j)-1)+")");
+        				rpChosenNumber++;
+	
         		    }
         			
+        			chooseRoadPointBtn.setText("已選"+num[rpChosenNumber]+"點");
         			chooseRoadPointBtn.setEnabled(true);
 
         		}
@@ -543,6 +561,7 @@ public class MainActivity extends Activity{
 		saveRouteBtn.setEnabled(false);
 		
 		 if(!cookie.equals("null")){
+			 	flag=0;
 	        	new getAu().execute(cookie);
 	     }
 		
@@ -621,11 +640,14 @@ public class MainActivity extends Activity{
 	    			for(a=0;a<roadPointLocationChosen.size();a++)
 	    			{
 	    				roadPointLocationChosen.set(a,0);
+	    				mWebView.loadUrl("javascript:setOrgIcon("+String.valueOf(a)+")");
 	    			}
 	    		
 	    			runOnUiThread(new Runnable() {
 	    				public void run() {
-		            	chooseRoadPointBtn.setEnabled(true);
+	    					rpChosenNumber=0;
+	    					chooseRoadPointBtn.setText("選擇路點");
+	    					chooseRoadPointBtn.setEnabled(true);
 	    				}
 	    			});
 	    		}
@@ -638,6 +660,7 @@ public class MainActivity extends Activity{
 	    			for(a=0;a<roadPointLocationChosen.size();a++)
 					{
 						roadPointLocationChosen.set(a,0);
+						mWebView.loadUrl("javascript:setOrgIcon("+String.valueOf(a)+")");
 					}
 	    		
 	    			runOnUiThread(new Runnable() {
@@ -862,6 +885,9 @@ public class MainActivity extends Activity{
 	            		saveRouteBtn.setEnabled(false);
 	            	}
 	            	
+	            	rpChosenNumber=0;
+	            	chooseRoadPointBtn.setText("選擇路點");
+	            	
 	            	leftInfoText.setText("");
 	            	rightInfoText.setText("");
 	            	mWebView.loadUrl("javascript:killRoute()");
@@ -1023,7 +1049,40 @@ public class MainActivity extends Activity{
 	    }
 	    
 	    @JavascriptInterface
-	    public void chooseByRec(int Rec)
+	    public void cancelByRec(final int Rec){
+	    	int flagGG=0;
+	    	
+	    	if(roadPointLocationChosen.get(Rec)==0)
+	    	{
+	    		flagGG=1;
+	    		Toast.makeText(MainActivity.this,"未選擇過", 100).show();
+	    	}
+	    	
+	    	if(flagGG==0){
+	    		roadPointLocationChosen.set(Rec,0);
+	    		Toast.makeText(MainActivity.this,"已取消", 100).show();
+	    		rpChosenNumber--;
+	    		
+	    		runOnUiThread(new Runnable() {
+		            public void run() {
+		            	if(rpChosenNumber>0){
+    						chooseRoadPointBtn.setText("已選"+num[rpChosenNumber]+"點");
+    					}else if(rpChosenNumber==0){
+    						chooseRoadPointBtn.setText("選擇路點");
+    					}
+		            	mWebView.loadUrl("javascript:setOrgIcon("+String.valueOf(Rec)+")");
+		            	chooseRoadPointBtn.setEnabled(true);
+		           }
+		       });
+	    		
+	    	}
+	    
+	    
+	    }
+	    
+	    
+	    @JavascriptInterface
+	    public void chooseByRec(final int Rec)
 	    {
 	    	 int flagGG=0;
 	    	 int chosenCtr=0;
@@ -1046,6 +1105,15 @@ public class MainActivity extends Activity{
 	    	if((flagGG==0)&&(chosenCtr<6)){
 	    		roadPointLocationChosen.set(Rec,1);
 	    		Toast.makeText(MainActivity.this,"已選擇", 100).show();
+	    		rpChosenNumber++;
+	    		
+	    		 runOnUiThread(new Runnable() {
+			            public void run() {
+			            	chooseRoadPointBtn.setText("已選"+num[rpChosenNumber]+"點");
+			            	mWebView.loadUrl("javascript:setChosenIcon("+String.valueOf(Rec)+")");
+			           }
+			       });
+	    		
 	    		chosenCtr++;
 	    		   
 	    		if(chosenCtr==6)

@@ -45,7 +45,7 @@ public class MainFragment extends Fragment {
 	private ImageButton goImgBtn;
 	private ImageButton historyImgBtn;
 	private String cookie;
-	private int flag;
+	private int flag=0;
 	private Session mSession;
   
     private Session.StatusCallback callback = new Session.StatusCallback() {  
@@ -127,6 +127,7 @@ public class MainFragment extends Fragment {
             if(!cookie.equals("null")){
             	goImgBtn.setEnabled(false);
             	historyImgBtn.setEnabled(false);
+            	flag=0;
             	new logOut().execute(cookie);
             }
             

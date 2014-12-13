@@ -17,8 +17,8 @@ var ep=null;
 var addr_s;
 var addr_e;
 var markerArray=[];
-var markerArray0=[];
-var markerArrayt=[];
+var markerArray2=[];
+var markerFlag=[];
 
 
   function initialize() {
@@ -173,16 +173,18 @@ var markerArrayt=[];
 					icon: icon0
             });
 							
-			var hml='<p>'+tle+'</p><br/><button onclick="myFunc('+rec+')">選擇</button>';
+			var hml='<p>'+tle+'</p><br/><button onclick="myFunc('+rec+')">選擇</button>&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="myFunc2('+rec+')">取消</button>';
 
 			attachInstructionText(marker_temp0,hml);
 
+			markerArray2.push(marker_temp0);
+			
 			if(bbbg0=="推薦地點")
 			{
-				markerArrayt.push(marker_temp0);
+				markerFlag.push(0);
 			}else
 			{
-				markerArray0.push(marker_temp0);
+				markerFlag.push(1);
 			}
 				
 		 }
@@ -205,6 +207,30 @@ var markerArrayt=[];
 	   setTimeout(function(){stepDisplay.close();},100);
   }
   
+  function setChosenIcon(bbbd)
+  {
+	 var icon_f="https://chart.googleapis.com/chart?chst=d_map_pin_icon&chld=glyphish_walk|89bdde|000000";
+	 markerArray2[bbbd].setIcon(icon_f);
+  }
+  
+  function setOrgIcon(bbbd)
+  {
+	 var icon_w="https://chart.googleapis.com/chart?chst=d_map_pin_icon&chld=glyphish_compass|6aad32|000000";
+	 var icon_t="https://chart.googleapis.com/chart?chst=d_map_pin_icon&chld=glyphish_compass|FF0000|000000";
+	 
+	 if(markerFlag[bbbd]==1){
+		 markerArray2[bbbd].setIcon(icon_w);
+	 }else if(markerFlag[bbbd]==0){
+		 markerArray2[bbbd].setIcon(icon_t);
+	 }
+  }
+  
+  function myFunc2(bbbd)
+  {
+	  window.android.cancelByRec(bbbd);
+	   setTimeout(function(){stepDisplay.close();},100);
+  }
+  
   
   function invibleRPmarkers()
 {
@@ -218,15 +244,11 @@ var markerArrayt=[];
 		marker_e.setMap(null);
 	}
 
-	for(i=0;i<markerArrayt.length;i++)
+	for(i=0;i<markerArray2.length;i++)
 	{
-		markerArrayt[i].setMap(null);
+		markerArray2[i].setMap(null);
 	}
 	
-	for(i=0;i<markerArray0.length;i++)
-	{
-		markerArray0[i].setMap(null);
-	}
 }
 
 function showRPmarkers()
@@ -235,14 +257,9 @@ function showRPmarkers()
 
 	marker_e.setMap(map);
 
-		for(i=0;i<markerArrayt.length;i++)
+		for(i=0;i<markerArray2.length;i++)
 		{
-			markerArrayt[i].setMap(map);
-		}
-		
-		for(i=0;i<markerArray0.length;i++)
-		{
-			markerArray0[i].setMap(map);
+			markerArray2[i].setMap(map);
 		}
 		
 }
@@ -250,17 +267,12 @@ function showRPmarkers()
 function killRPmarkers()
 {
 		
-		for(i=0;i<markerArrayt.length;i++)
+		for(i=0;i<markerArray2.length;i++)
 		{
-			markerArrayt[i].setMap(null);
+			markerArray2[i].setMap(null);
 		}
-		markerArrayt=[];
-		
-		for(i=0;i<markerArray0.length;i++)
-		{
-			markerArray0[i].setMap(null);
-		}
-		markerArray0=[];
+		markerArray2=[];
+		markerFlag=[];
 }
 
 function route(ctr)
@@ -351,7 +363,7 @@ function route(ctr)
 			  
 			  var icon_s="https://chart.googleapis.com/chart?chst=d_map_pin_icon&chld=star|FF0000|000000";
 			  var icon_e="https://chart.googleapis.com/chart?chst=d_map_pin_icon&chld=flag|FF0000|000000";
-			  var icon_f="https://chart.googleapis.com/chart?chst=d_map_pin_icon&chld=glyphish_walk|6aad32|000000";
+			  var icon_f="https://chart.googleapis.com/chart?chst=d_map_pin_icon&chld=glyphish_walk|89bdde|000000";
 
 			  var marker_temp_s = new google.maps.Marker({
                   position: sp,
@@ -541,7 +553,7 @@ function routeHis(ctr)
 			  
 			  var icon_s="https://chart.googleapis.com/chart?chst=d_map_pin_icon&chld=star|FF0000|000000";
 			  var icon_e="https://chart.googleapis.com/chart?chst=d_map_pin_icon&chld=flag|FF0000|000000";
-			  var icon_f="https://chart.googleapis.com/chart?chst=d_map_pin_icon&chld=glyphish_walk|6aad32|000000";
+			  var icon_f="https://chart.googleapis.com/chart?chst=d_map_pin_icon&chld=glyphish_walk|89bdde|000000";
 
 			   var xx2;
 			   var aa2;
