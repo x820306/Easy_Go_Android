@@ -1,6 +1,12 @@
-﻿<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+﻿<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/scrollView1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >	
+
+<RelativeLayout 
+    android:id="@+id/RL1"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
+    android:layout_height="wrap_content" >
 
     <ImageButton
         android:id="@+id/imageButton1"
@@ -24,7 +30,7 @@
     <com.facebook.widget.LoginButton
         android:id="@+id/authButton"
         android:layout_width="443px"
-        android:layout_height="96px"
+        android:layout_height="95px"
         android:layout_below="@+id/imageButton1"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="49dp"
@@ -33,7 +39,7 @@
     <ImageButton
         android:id="@+id/imageButton3"
         android:layout_width="443px"
-        android:layout_height="96px"
+        android:layout_height="95px"
         android:layout_below="@+id/authButton"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="38dp"
@@ -41,3 +47,4 @@
         android:src="@drawable/history_log_03" />
 
 </RelativeLayout>
+</ScrollView>

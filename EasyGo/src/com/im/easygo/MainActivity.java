@@ -55,7 +55,7 @@ public class MainActivity extends Activity{
 	private static final String url = "file:///android_asset/map.html";
 	private WebView mWebView = null;
 	private DrawerLayout layDrawer;
-	private RelativeLayout lstDrawer;
+	private ScrollView lstDrawer;
 	private ActionBarDrawerToggle drawerToggle;
 	private Button startLBtn;
 	private Button endLBtn;
@@ -575,10 +575,9 @@ public class MainActivity extends Activity{
 	    }
 
 	    private void initDrawer(){
-	        setContentView(R.layout.activity_main);
 
 	        layDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-	        lstDrawer = (RelativeLayout) findViewById(R.id.left_drawer);
+	        lstDrawer = (ScrollView) findViewById(R.id.scrollView1);
 
 	        layDrawer.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 

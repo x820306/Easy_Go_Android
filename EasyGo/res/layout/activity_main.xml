@@ -63,13 +63,24 @@
     	</LinearLayout>
 
     <!-- The navigation drawer -->
-    <RelativeLayout android:id="@+id/left_drawer"
-        android:layout_width="240dp"
-        android:layout_height="match_parent"
-		android:layout_gravity="start"
+   
+    		    
+    <ScrollView
+            android:id="@+id/scrollView1"
+            android:layout_width="240dp"
+            android:layout_height="match_parent" 
+            android:layout_gravity="start"
+    	    android:orientation="vertical"
+            android:background="@color/black">	
+            
+        <!-- android:layout_gravity="start" -->
+    <RelativeLayout android:id="@+id/RL1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
     	android:orientation="vertical"
-        android:background="@color/black">
-    		    <!--android:layout_gravity="start" -->
+        android:background="@color/black">   
+    		    
+    		    
         <TextView
             android:id="@+id/textView1"
             android:layout_width="wrap_content"
@@ -233,7 +244,8 @@
             android:text="Switch" 
             android:textOff="OFF"  
             android:textOn="ON"/>
-       
-    </RelativeLayout>
+      </RelativeLayout>
+      </ScrollView> 
+
     
 </android.support.v4.widget.DrawerLayout>
