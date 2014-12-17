@@ -456,10 +456,10 @@ public class MainActivity extends Activity{
 	        	
 	        	int itemId = item.getItemId();
 				if (itemId == R.id.cancel) {
-					CGM.cancelByflag(RP);
+					CGM.cancelByflag();
 					return true;
 				} else if (itemId == R.id.go) {
-					CGM.goByflag(RP,TW);
+					CGM.goByflag();
 					return true;
 				} else {
 					return super.onOptionsItemSelected(item);
@@ -1635,20 +1635,20 @@ public class MainActivity extends Activity{
 		    	goflag=0;
 	    	}
 	    	
-	    	 public void cancelByflag(final roadPoint input) {  
+	    	 public void cancelByflag() {  
 	 	    	if(cancelflag==1)
 	 	    	{
-	 	    		if(input.size()>0){
+	 	    		if(RP.size()>0){
 	 	    			int a;
-	 	    			for(a=0;a<input.size();a++)
+	 	    			for(a=0;a<RP.size();a++)
 	 	    			{
-	 	    				input.roadPointLocationChosen.set(a,0);
+	 	    				RP.roadPointLocationChosen.set(a,0);
 	 	    				mWebView.loadUrl("javascript:setOrgIcon("+String.valueOf(a)+")");
 	 	    			}
 	 	    		
 	 	    			runOnUiThread(new Runnable() {
 	 	    				public void run() {
-	 	    					input.rpChosenNumber=0;
+	 	    					RP.rpChosenNumber=0;
 	 	    					chooseRoadPointBtn.setText("選擇路點");
 	 	    					chooseRoadPointBtn.setEnabled(true);
 	 	    				}
@@ -1658,11 +1658,11 @@ public class MainActivity extends Activity{
 	 	    	{
 	 	    		routeKiller();
 	 	    
-	 	    		if(input.size()>0){
+	 	    		if(RP.size()>0){
 	 	    			int a;
-	 	    			for(a=0;a<input.size();a++)
+	 	    			for(a=0;a<RP.size();a++)
 	 					{
-	 	    				input.roadPointLocationChosen.set(a,0);
+	 	    				RP.roadPointLocationChosen.set(a,0);
 	 						mWebView.loadUrl("javascript:setOrgIcon("+String.valueOf(a)+")");
 	 					}
 	 	    		
@@ -1685,25 +1685,25 @@ public class MainActivity extends Activity{
 	 	    	}  
 	 	    }  
 	 	    
-	 	    public void goByflag(final roadPoint input1,final timeWatch input2) {  
+	 	    public void goByflag() {  
 	 	       
 	 	    	if(goflag==1)
 	 	    	{
 	 	    		runOnUiThread(new Runnable() {
 	 		            public void run() {
-	 		            	if(input2.timerBtnFlag){
-	 		            		input2.stop();
+	 		            	if(TW.timerBtnFlag){
+	 		            		TW.stop();
 	 		        			
 	 		        			loop.endListener();
 	 		        			
 	 		        			timerBtn.setText("Start");
 	 		        	    	
-	 		        			input2.timerBtnFlag=false;
+	 		        			TW.timerBtnFlag=false;
 	 		        	    	
 	 		        	    	mWebView.loadUrl("javascript:killCurrentLocation()");
 	 		            	}
-	 		            	input2.setTotalSec0();
-	 		            	mWebView.loadUrl("javascript:route("+input1.size()+")");
+	 		            	TW.setTotalSec0();
+	 		            	mWebView.loadUrl("javascript:route("+RP.size()+")");
 	 		            	
 	 		           }
 	 		       });
