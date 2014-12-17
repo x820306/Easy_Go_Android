@@ -49,683 +49,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.SocketTimeoutException;
 import java.net.URLDecoder;
 
-class getAu extends AsyncTask<String,Void, String>
-{
-	public getAu(MainActivity mainActy){
-		mainActy_c=mainActy;
-	}
-	
-	@Override
-	protected String doInBackground(String... arg0) {
-		
-		String getUrl="http://192.168.1.108:1337/isAuthenticated";
-		String content = "null";
-		 
-        HttpGet get=new HttpGet(getUrl);  
-		 try {
-			
-			get.setHeader("cookie",arg0[0]);
-			
-			HttpClient client=new DefaultHttpClient();  
-            HttpResponse response=client.execute(get);  
-            if(response.getStatusLine().getStatusCode()==200){  
-                content=EntityUtils.toString(response.getEntity());   
-                flag=true;
-            } else{
-            	content=String.valueOf(response.getStatusLine().getStatusCode());
-            	flag=false;
-            }
-		} catch (ClientProtocolException e) {  
-            e.printStackTrace();  
-       } catch (IOException e) {  
-            e.printStackTrace();  
-       }  
-		
-		
-		return content;
-	}
-	
-	@Override
-	protected void onPostExecute(String result)
-    {
-		if(!flag){
-			Toast.makeText(mainActy_c, result,100).show();	
-		}else if(flag){
-			
-			try{
-				JSONObject obj = new JSONObject(result);
-			
-				if(obj.getString("message").equals("yes")==true){
-					mainActy_c.setUidAndHisRoute(obj.getString("uid"));
-				}
-			
-			}catch (JSONException e) {
-    			e.printStackTrace();
-    		}  
-			
-		}
-    }
-	
-	private MainActivity mainActy_c;
-	private boolean flag=false;
-}
-
-
-class postSaveRoute extends AsyncTask<String,Void, String>
-{
-	public postSaveRoute(MainActivity mainActy){
-		mainActy_c=mainActy;
-	}
-	
-	
-	@Override
-	protected String doInBackground(String... arg0) {
-		
-		String postUrl="http://192.168.1.108:1337/history/create";
-		String content = "null";
-		List<NameValuePair> params=new ArrayList<NameValuePair>();  
-        params.add(new BasicNameValuePair("path", arg0[0])); 
-        params.add(new BasicNameValuePair("userid", arg0[1]));
-		 
-   
-        HttpPost post=new HttpPost(postUrl);  
-		 try {
-			post.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
-			
-			HttpClient client=new DefaultHttpClient();  
-            HttpResponse response=client.execute(post);  
-            
-            if(response.getStatusLine().getStatusCode()==201){  
-            	flag=true;
-            }else{
-                flag=false;
-            	
-            }
-		} catch (ClientProtocolException e) {  
-            e.printStackTrace();  
-       } catch (IOException e) {  
-            e.printStackTrace();  
-       }  
-		
-		
-		return content;
-	}
-	
-	@Override
-	protected void onPostExecute(String result)
-    {
-		if(!flag){
-			Toast.makeText(mainActy_c,"收藏失敗",100).show();
-		}else{
-			Toast.makeText(mainActy_c,"收藏成功",100).show();
-		}
-    }
-	
-	private MainActivity mainActy_c;
-	private boolean flag=false;
-}
-
-class postData0 extends AsyncTask<String,Void,List<String>>
-{
-	public postData0(MainActivity mainActy){
-		mainActy_c=mainActy;
-	}
-	
-	@Override
-	protected List<String> doInBackground(String... arg0) {
-		List<String> ListRtn=new ArrayList<String>();
-		ListRtn.add(arg0[0]);
-        ListRtn.add(arg0[1]);
-        ListRtn.add(arg0[2]);
-        ListRtn.add(arg0[3]);
-        ListRtn.add("null2");
-		
-    	String postUrl="http://192.168.1.108:1337/check_roadpoint";
-    	List<NameValuePair> params=new ArrayList<NameValuePair>();  
-        params.add(new BasicNameValuePair("lat_self", arg0[0]));  
-        params.add(new BasicNameValuePair("lon_self", arg0[1]));  
-        params.add(new BasicNameValuePair("rad", arg0[2])); 
-        
-        HttpPost post=new HttpPost(postUrl);  
-		 try {
-			post.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
-			
-			HttpParams httpParameters=new BasicHttpParams();
-			HttpConnectionParams.setConnectionTimeout(httpParameters, 30000);
-			HttpConnectionParams.setSoTimeout(httpParameters, 30000);
-			HttpClient client=new DefaultHttpClient(httpParameters); 
-            HttpResponse response=client.execute(post);  
-           if(response.getStatusLine().getStatusCode()==200){  
-        	   ListRtn.set(4,EntityUtils.toString(response.getEntity()));     
-           }else{
-        	   ListRtn.set(4,"null2");
-           }
-           
-		}catch (ConnectTimeoutException e) {  
-			
-			e.printStackTrace();
-			ListRtn.set(4,"null");
-       }catch (SocketTimeoutException e) {  
-			
-			e.printStackTrace();  
-			ListRtn.set(4,"null");
-       }catch (ClientProtocolException e) { 
-       	
-           e.printStackTrace();  
-           ListRtn.set(4,"null2");
-       } catch (IOException e) {
-       	
-           e.printStackTrace(); 
-           ListRtn.set(4,"null2");
-       }
-	   return ListRtn;
-	}
-	
-	@Override
-	protected void onPostExecute(List<String> result)
-    {
-
-		//Toast.makeText(MainActivity.this,result,100).show();
-		
-		if(result.get(4).equals("null")){
-			if(Integer.valueOf(result.get(3))<3){
-				result.set(3,String.valueOf(Integer.valueOf(result.get(3))+1));
-				Toast.makeText(mainActy_c,"連線逾時重新發起連線中",100).show();
-				new postData0(mainActy_c).execute(result.get(0),result.get(1),result.get(2),result.get(3));
-			}else{
-				mainActy_c.setHttpTimeoutFlag();
-				mainActy_c.frpEnding();
-			}
-			
-		}else if(result.get(4).equals("null2")){
-			mainActy_c.setHttpTimeoutFlag();
-			mainActy_c.frpEnding();
-		}else{
-			mainActy_c.analysisJSON(result.get(4),0);  
-			 
-			 if(!mainActy_c.getSerApiFlag()){
-				 mainActy_c.frpEnding();
-			 }else{
-					new postData1(mainActy_c).execute("0");
-			 }
-		}
-    }
-
-	private MainActivity mainActy_c;
-}
-
-class postData1 extends AsyncTask<String,Void,List<String>>
-{
-	public postData1(MainActivity mainActy){
-		mainActy_c=mainActy;
-	}
-	
-	
-	@Override
-	protected List<String> doInBackground(String... arg0) {
-		List<String> ListRtn=new ArrayList<String>();
-		ListRtn.add(arg0[0]); 
-		ListRtn.add("null2");
-		
-        String postUrl="http://api.ser.ideas.iii.org.tw/api/user/get_token";
-		List<NameValuePair> params=new ArrayList<NameValuePair>();  
-        params.add(new BasicNameValuePair("id", "277b49909b1d1400b8a139f0d575cad5"));  
-        params.add(new BasicNameValuePair("secret_key", "2681a844c37d538bbd53d5ac101a3f43"));  
-        
-        HttpPost post=new HttpPost(postUrl);  
-		 try {
-			post.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
-			
-			HttpParams httpParameters=new BasicHttpParams();
-			HttpConnectionParams.setConnectionTimeout(httpParameters, 15000);
-			HttpConnectionParams.setSoTimeout(httpParameters, 15000);
-			HttpClient client=new DefaultHttpClient(httpParameters); 
-           HttpResponse response=client.execute(post);  
-          if(response.getStatusLine().getStatusCode()==200){  
-        	  ListRtn.set(1,EntityUtils.toString(response.getEntity()));     
-          }else{
-
-        	  ListRtn.set(1,"null2");
-          }
-		}catch (ConnectTimeoutException e) {  
-			
-			e.printStackTrace();  
-			ListRtn.set(1,"null");
-      }catch (SocketTimeoutException e) {  
-			
-			e.printStackTrace();  
-			ListRtn.set(1,"null");
-      }catch (ClientProtocolException e) { 
-      	
-          e.printStackTrace();  
-          ListRtn.set(1,"null2");
-      } catch (IOException e) {
-      	
-          e.printStackTrace(); 
-          ListRtn.set(1,"null2");
-      }
-		 
-		 return ListRtn;
-	}
-	
-	@Override
-	protected void onPostExecute(List<String> result)
-    {	
-		if(result.get(1).equals("null")){
-			if(Integer.valueOf(result.get(0))<3){
-				result.set(0,String.valueOf(Integer.valueOf(result.get(0))+1));
-				Toast.makeText(mainActy_c,"連線逾時重新發起連線中",100).show();
-				new postData1(mainActy_c).execute(result.get(0));
-			}else{
-				mainActy_c.setHttpTimeoutFlag();
-				mainActy_c.frpEnding();
-			}
-		}else if(result.get(1).equals("null2")){
-			mainActy_c.setHttpTimeoutFlag();
-			mainActy_c.frpEnding();
-		}else{
-			mainActy_c.analysisJSON(result.get(1),1);  
-		}
-    }
-	
-	private MainActivity mainActy_c;
-}
-
-class postData2 extends AsyncTask<String,Void,List<String>>
-{
-	public postData2(MainActivity mainActy){
-		mainActy_c=mainActy;
-	}
-	
-	@Override
-	protected List<String> doInBackground(String... arg0) {
-		List<String> ListRtn=new ArrayList<String>();
-		ListRtn.add(arg0[0]);
-        ListRtn.add(arg0[1]);
-        ListRtn.add(arg0[2]);
-        ListRtn.add(arg0[3]);
-        ListRtn.add(arg0[4]);
-        ListRtn.add(arg0[5]);
-        ListRtn.add(arg0[6]);
-        ListRtn.add(arg0[7]);
-        ListRtn.add(arg0[8]);
-        ListRtn.add("null");
-		
-		String postUrl="http://api.ser.ideas.iii.org.tw/api/fb_checkin_search";
-    	List<NameValuePair> params=new ArrayList<NameValuePair>();  
-
-    	 params.add(new BasicNameValuePair("coordinates", arg0[4]));
-		 params.add(new BasicNameValuePair("radius", arg0[3]));
-		 params.add(new BasicNameValuePair("limit", arg0[1]));
-		 params.add(new BasicNameValuePair("token", arg0[2]));
-		 
-		 if(!arg0[0].equals("null")){
-			 params.add(new BasicNameValuePair("keyword",arg0[0]));
-		 }
-    	
-    	if(arg0[7].equals("false")){
-    		params.add(new BasicNameValuePair("category",mainActy_c.getCategory().categorySend.get(Integer.valueOf(arg0[5]))));
-    	}
-    	
-    	  HttpPost post=new HttpPost(postUrl);  
-			 try {
-				post.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
-				
-				HttpParams httpParameters=new BasicHttpParams();
-				HttpConnectionParams.setConnectionTimeout(httpParameters, 15000);
-				HttpConnectionParams.setSoTimeout(httpParameters, 15000);
-				HttpClient client=new DefaultHttpClient(httpParameters); 
-               HttpResponse response=client.execute(post);  
-              if(response.getStatusLine().getStatusCode()==200){  
-            	  ListRtn.set(9,EntityUtils.toString(response.getEntity()));     
-                  
-              }else{
-            	  mainActy_c.setHttpTimeoutFlag();
-            	  ListRtn.set(9,"null");
-              }
-			}catch (ConnectTimeoutException e) {  
-				mainActy_c.setHttpTimeoutFlag();
-				e.printStackTrace();  
-				ListRtn.set(9,"null");
-          }catch (SocketTimeoutException e) {  
-        	  mainActy_c.setHttpTimeoutFlag();
-				e.printStackTrace();  
-				ListRtn.set(9,"null");
-          }catch (ClientProtocolException e) { 
-        	  mainActy_c.setHttpTimeoutFlag();
-              e.printStackTrace();  
-              ListRtn.set(9,"null");
-          } catch (IOException e) {
-        	  mainActy_c.setHttpTimeoutFlag();
-              e.printStackTrace(); 
-              ListRtn.set(9,"null");
-          }
-			 return ListRtn;
-	}
-	
-	@Override
-	protected void onPostExecute(List<String> result)
-    {
-		if(!result.get(9).equals("null")){
-			int fnd=mainActy_c.analysisJSON(result.get(9),2);  
-			int limit_l=Integer.valueOf(result.get(1))-fnd;
-			int leftTimes_l=Integer.valueOf(result.get(6))-1;
-			result.set(1,String.valueOf(limit_l));
-			 
-			 result.set(6,String.valueOf(leftTimes_l));
-		    	
-		     if((leftTimes_l!=0)&&(limit_l>0))
-			 {
-		    	 result.set(5,String.valueOf(Integer.valueOf(result.get(5))+1));
-		    	new postData2(mainActy_c).execute(result.get(0),result.get(1),result.get(2),result.get(3),result.get(4),result.get(5),result.get(6),result.get(7),result.get(8));
-			 }else{
-				 mainActy_c.frpEnding();
-			 }
-		}else{
-			mainActy_c.frpEnding();
-		}
-		
-		   /*if(result.get(9).equals("null")){
-		   		if(Integer.valueOf(result.get(8))<3){
-					result.set(8,String.valueOf(Integer.valueOf(result.get(8))+1));
-					Toast.makeText(mainActy_c,"連線逾時重新發起連線中",100).show();
-					new postData2(mainActy_c).execute(result.get(0),result.get(1),result.get(2),result.get(3),result.get(4),result.get(5),result.get(6),result.get(7),result.get(8));
-				}else{
-					mainActy_c.setHttpTimeoutFlag();
-					mainActy_c.frpEnding();
-				}
-		   }else if(result.get(9).equals("null2")){
-			    mainActy_c.setHttpTimeoutFlag();
-				mainActy_c.frpEnding();
-		   }else{
-		     	int fnd=mainActy_c.analysisJSON(result.get(9),2);  
-				int limit_l=Integer.valueOf(result.get(1))-fnd;
-				int leftTimes_l=Integer.valueOf(result.get(6))-1;
-				result.set(1,String.valueOf(limit_l));
-				 
-				 result.set(6,String.valueOf(leftTimes_l));
-			    	
-			     if((leftTimes_l!=0)&&(limit_l>0))
-				 {
-			    	 result.set(5,String.valueOf(Integer.valueOf(result.get(5))+1));
-			    	 result.set(9,"0");
-			    	 new postData2(mainActy_c).execute(result.get(0),result.get(1),result.get(2),result.get(3),result.get(4),result.get(5),result.get(6),result.get(7),result.get(8));
-				 }else{
-					 mainActy_c.frpEnding();
-				 }	
-		   }*/
-		   //keep sending the same http request when not get data in time
-		  //DO NOT use these codes while there is still usage limit on SER(III) API   
-    }
-	
-	private MainActivity mainActy_c;
-}
-
-class timeWatch{
-	
-	public timeWatch(MainActivity mainActy){
-		mainActy_c=mainActy;
-		timerBtnFlag=false;
-		setTotalSec0();
-	}
-	
-	public void start(){
-		
-		timer=new Timer();
-		timer.schedule(new myTask(), 0,1000);
-	}
-	
-	public void stop(){
-		timer.cancel();
-		timer.purge();
-	}
-	
-	public void setTotalSec0(){
-		totalSec=0;
-	}
-	
-	private class myTask extends TimerTask {
-	    
-	     @ Override
-	      public void run() {
-	    	 totalSec+=1;
-			 int ss=totalSec;
-		     int hh=ss/3600;
-			 ss-=(hh*3600);
-			 int mm=ss/60;
-			 ss-=(mm*60);
-			 
-			 String sString=String.valueOf(ss);
-			 String mString=String.valueOf(mm);
-			 String hString=String.valueOf(hh);
-			 final String sString2;
-			 final String mString2;
-			 final String hString2;
-		
-			 if(hh<10)
-			 {
-				 hString2="0"+hString+":";
-			 }else
-			 {
-				 hString2=hString+":";
-			 }
-
-			 if(mm<10)
-			 {
-				 mString2="0"+mString+":";
-			 }else
-			 {
-				 mString2=mString+":";
-			 }
-
-			  if(ss<10)
-			 {
-				  sString2="0"+sString;
-			 }else
-			 {
-				 sString2=sString;
-			 }
-			  
-			  
-			  mainActy_c.setTimeWatchText(hString2+mString2+sString2);
-		       
-	     }
-	}
-	
-	private MainActivity mainActy_c;
-	private int totalSec;
-	private Timer timer;
-	public boolean timerBtnFlag;
-}
-
-
-class getLocationFromPhone{
-	public getLocationFromPhone(MainActivity mainActy,boolean OnceLoopFlag){
-		 OnceLoopFlag_c=OnceLoopFlag;
-		 mainActy_c=mainActy;
-		 Lmgr=(LocationManager)mainActy.getSystemService(Context.LOCATION_SERVICE);
-		 locationListener = new LocationListener(){
-
-				@Override
-				public void onLocationChanged(Location location) {
-					// TODO Auto-generated method stub
-					
-					String Lat=String.valueOf(location.getLatitude());
-					String Lon=String.valueOf(location.getLongitude());
-					
-					
-					if(!OnceLoopFlag_c){
-						if(StartEndRunningFlag==1){
-							mainActy_c.callJavascript("javascript:startLocation("+Lat+","+Lon+")");
-						}else if(StartEndRunningFlag==2){
-							mainActy_c.callJavascript("javascript:endLocation("+Lat+","+Lon+")");
-						}
-						endListenerSE();
-					}else{
-						
-						mainActy_c.callJavascript("javascript:currentLocation("+Lat+","+Lon+")");
-					}
-				}
-
-				@Override
-				public void onProviderDisabled(String provider) {
-					// TODO Auto-generated method stub
-					if(provider.equals( bestLocationProvider)==true){
-						endListenerSE();
-					}
-				}
-
-				@Override
-				public void onProviderEnabled(String provider) {
-					// TODO Auto-generated method stub
-					
-				}
-
-				@Override
-				public void onStatusChanged(String provider, int status,
-						Bundle extras) {
-					// TODO Auto-generated method stub
-				}
-	        };
-		 
-	}
-	
-	public void startListenerSE(int inputFlag){
-		if(StartEndRunningFlag==0){
-			StartEndRunningFlag=inputFlag;
-			startListener();
-		}
-	}
-	
-	public void endListenerSE(){
-		StartEndRunningFlag=0;
-	    endListener();
-	}
-	
-	public void startListener(){
-		Criteria c=new Criteria();
-		bestLocationProvider=Lmgr.getBestProvider(c, true);
-		Lmgr.requestLocationUpdates(bestLocationProvider,0,0,locationListener);
-	}
-	
-    public void endListener(){
-    	Lmgr.removeUpdates(locationListener);
-	}
-	
-	private LocationManager Lmgr;
-	private String bestLocationProvider;
-	private LocationListener locationListener;
-	private int StartEndRunningFlag=0;
-	private boolean OnceLoopFlag_c;
-	private MainActivity mainActy_c;
-	
-}
-
-class roadPoint{
-	
-	roadPoint(){
-		init();
-	}
-	
-	public void init(){
-		roadPointLocation=new ArrayList<String>();
-		roadPointTitle=new ArrayList<String>();
-		roadPointLocationChosen=new ArrayList<Integer>();
-		rpChosenNumber=0;
-	} 
-	
-	public int size(){
-		return roadPointLocation.size();
-	}
-
-	public List<String> roadPointLocation;
-	public List<Integer> roadPointLocationChosen;
-	public List<String> roadPointTitle;
-	
-	public int rpChosenNumber;
-	public String[] num={"零","一","二","三","四","五","六"};
-}
-
-class savedRoadPoint{
-	
-	savedRoadPoint(){
-		init();
-	}
-	
-	public void init(){
-		savedRoadPointLocation=new ArrayList<String>();
-		savedRoadPointTitle=new ArrayList<String>();
-	} 
-	
-	public int size(){
-		return savedRoadPointLocation.size();
-	}
-
-	public List<String> savedRoadPointLocation;
-	public List<String> savedRoadPointTitle;
-
-}
-
-class category{
-
-	category(){
-		categoryName=new ArrayList<String>();
-    	categoryChosen=new ArrayList<Integer>();
-    	categoryValue=new ArrayList<String>();
-    	
-    	categoryName.add("商務"); categoryValue.add("Local business"); categoryChosen.add(0);
-    	categoryName.add("餐廳"); categoryValue.add("Restaurant/cafe"); categoryChosen.add(0);
-    	categoryName.add("旅館"); categoryValue.add("Hotel"); categoryChosen.add(0);
-    	categoryName.add("休閒"); categoryValue.add("Travel/leisure"); categoryChosen.add(0);
-    	categoryName.add("學校"); categoryValue.add("School"); categoryChosen.add(0);
-    	categoryName.add("地標"); categoryValue.add("Landmark"); categoryChosen.add(0);
-    	categoryName.add("觀光"); categoryValue.add("Tours/sightseeing"); categoryChosen.add(0);
-    	categoryName.add("娛樂"); categoryValue.add("Arts/entertainment/nightlife"); categoryChosen.add(0);
-    	categoryName.add("購物"); categoryValue.add("Shopping/retail"); categoryChosen.add(0);
-    	categoryName.add("美容"); categoryValue.add("Health/beauty"); categoryChosen.add(0);
-    	categoryName.add("食品"); categoryValue.add("Food/grocery"); categoryChosen.add(0);
-    	categoryName.add("飲料"); categoryValue.add("Food/beverages"); categoryChosen.add(0);
-    	categoryName.add("服飾"); categoryValue.add("Clothing"); categoryChosen.add(0);
-    	categoryName.add("宗教"); categoryValue.add("Church/religious organization"); categoryChosen.add(0);
-    	categoryName.add("博物館"); categoryValue.add("Museum/art gallery"); categoryChosen.add(0);
-    	categoryName.add("體育館"); categoryValue.add("Sports venue"); categoryChosen.add(0);
-    	categoryName.add("酒吧"); categoryValue.add("Bar"); categoryChosen.add(0);
-    	categoryName.add("俱樂部"); categoryValue.add("Club"); categoryChosen.add(0);
-    	categoryName.add("圖書館"); categoryValue.add("Library"); categoryChosen.add(0);
-    	categoryName.add("零售店"); categoryValue.add("Retail and consumer merchandise"); categoryChosen.add(0);
-    	categoryName.add("書店"); categoryValue.add("Book store"); categoryChosen.add(0);
-    	categoryName.add("政府"); categoryValue.add("Government organization"); categoryChosen.add(0);
-    	categoryName.add("電影院"); categoryValue.add("Movie theater"); categoryChosen.add(0);
-    	categoryName.add("珠寶"); categoryValue.add("Jewelry/watches"); categoryChosen.add(0);
-    	categoryName.add("院所"); categoryValue.add("Hospital/clinic"); categoryChosen.add(0);
-	}
-	
-	public void categorySend_init(){
-		categorySend=new ArrayList<String>();
-	} 
-	
-	public int size(){
-		return categoryName.size();
-	}
-	
-	
-	public List<String> categoryName;
-	public List<String> categoryValue;
-	public List<String> categorySend;
-	public List<Integer> categoryChosen;
-}
-
-class importantInfo{
-	public String startAddress;
-	public String endAddress;
-	public String startLatLng;
-	public String endLatLng;
-	public String radius;
-	public String center;
-	
-}
-
-
 
 public class MainActivity extends Activity{
 
@@ -749,12 +72,7 @@ public class MainActivity extends Activity{
 	private TextView leftInfoText;
 	private TextView rightInfoText;
 	
-	private int cancelflag=0;
-	private int goflag=0;
-	
-	private boolean HttpTimeoutFlag=false;
 	private boolean serApiFlag=false;
-
 
 	private Bundle bundle;
 	private String cookie;
@@ -764,13 +82,9 @@ public class MainActivity extends Activity{
 	private roadPoint RP;
 	private savedRoadPoint SRP;
 	private category CGY;
-	private importantInfo INF;
+	private saveRouteManager SRM;
+	private cancelGoManager CGM;
 	private timeWatch TW;
-	
-
-	public void callJavascript(String funUrl){
-		mWebView.loadUrl(funUrl);
-	}
 	
 	
     protected void onCreate(Bundle savedInstanceState) {
@@ -802,10 +116,14 @@ public class MainActivity extends Activity{
         mWebView.addJavascriptInterface(MainActivity.this, "android");
        
        
-        once=new getLocationFromPhone(MainActivity.this,false);
-        loop=new getLocationFromPhone(MainActivity.this,true);
-        TW=new timeWatch(MainActivity.this);
-        INF=new importantInfo();
+        once=new getLocationFromPhone(false);
+        loop=new getLocationFromPhone(true);
+        CGY=new category();
+        RP=new roadPoint();
+        SRP=new savedRoadPoint();
+        TW=new timeWatch();
+        SRM=new saveRouteManager();
+        CGM=new cancelGoManager();
         
         IIIswitch.setOnCheckedChangeListener(new OnCheckedChangeListener() {  
         	  
@@ -862,20 +180,10 @@ public class MainActivity extends Activity{
         	@Override
         	public void onClick(View v) {
         		if(!uid.equals("null")){
-        			int y;
-        			String path="";
-        			path=path+"{\"land\":\""+INF.startLatLng+"\",\"name\":\""+INF.startAddress+"\"},";
         			
-        			for(y=0;y<RP.size();y++){
-        				if(RP.roadPointLocationChosen.get(y)==1){
-        					path=path+"{\"land\":\""+RP.roadPointLocation.get(y)+"\",\"name\":\""+RP.roadPointTitle.get(y)+"\"},";
-        				}
-        			}
-        			
-        			path=path+"{\"land\":\""+INF.endLatLng+"\",\"name\":\""+INF.endAddress+"\"}";
-        			
+        			String route=SRM.getRouteToSave(RP);
  
-        			new postSaveRoute(MainActivity.this).execute(path,uid);
+        			new postSaveRoute().execute(route,uid);
         		}
         	}
         });
@@ -892,15 +200,15 @@ public class MainActivity extends Activity{
 						rdmBtn.setEnabled(false);
 						IIIswitch.setEnabled(false);
         				
-        				INF.startAddress=startLocation.getText().toString();
-        				INF.endAddress=endLocation.getText().toString();
+        				SRM.startAddress=startLocation.getText().toString();
+        				SRM.endAddress=endLocation.getText().toString();
         				
         				RP=new roadPoint();
         				routeKiller();
-        				goflag=0;
-        				cancelflag=0;
+        				CGM.goflag=0;
+        				CGM.cancelflag=0;
         				
-        				mWebView.loadUrl("javascript:frp('"+INF.startAddress+"','"+INF.endAddress+"')");
+        				mWebView.loadUrl("javascript:frp('"+SRM.startAddress+"','"+SRM.endAddress+"')");
         			}
         		
         	}
@@ -1090,10 +398,6 @@ public class MainActivity extends Activity{
 
         cookie=bundle.getString("cookie");
         uid="null";
-        
-        CGY=new category();
-    	
-    	
     	
 		chooseRoadPointBtn.setEnabled(false);
 		rdmBtn.setEnabled(false);
@@ -1101,7 +405,7 @@ public class MainActivity extends Activity{
 		saveRouteBtn.setEnabled(false);
 		
 		 if(!cookie.equals("null")){
-	        	new getAu(MainActivity.this).execute(cookie);
+	        	new getAu().execute(cookie);
 	     }
 		
 		
@@ -1152,10 +456,10 @@ public class MainActivity extends Activity{
 	        	
 	        	int itemId = item.getItemId();
 				if (itemId == R.id.cancel) {
-					cancelByflag();
+					CGM.cancelByflag(RP);
 					return true;
 				} else if (itemId == R.id.go) {
-					goByflag();
+					CGM.goByflag(RP,TW);
 					return true;
 				} else {
 					return super.onOptionsItemSelected(item);
@@ -1170,85 +474,10 @@ public class MainActivity extends Activity{
 	        return super.onCreateOptionsMenu(menu);  
 	    }  
 	    
-	    public void cancelByflag() {  
-	    	if(cancelflag==1)
-	    	{
-	    		if(RP.size()>0){
-	    			int a;
-	    			for(a=0;a<RP.size();a++)
-	    			{
-	    				RP.roadPointLocationChosen.set(a,0);
-	    				mWebView.loadUrl("javascript:setOrgIcon("+String.valueOf(a)+")");
-	    			}
-	    		
-	    			runOnUiThread(new Runnable() {
-	    				public void run() {
-	    					RP.rpChosenNumber=0;
-	    					chooseRoadPointBtn.setText("選擇路點");
-	    					chooseRoadPointBtn.setEnabled(true);
-	    				}
-	    			});
-	    		}
-	    	}else if(cancelflag==2)
-	    	{
-	    		routeKiller();
-	    
-	    		if(RP.size()>0){
-	    			int a;
-	    			for(a=0;a<RP.size();a++)
-					{
-						RP.roadPointLocationChosen.set(a,0);
-						mWebView.loadUrl("javascript:setOrgIcon("+String.valueOf(a)+")");
-					}
-	    		
-	    			runOnUiThread(new Runnable() {
-		            	public void run() {
-		            		chooseRoadPointBtn.setEnabled(true);
-		            	}
-		        	});
-	    		}
-	    		
-	    		mWebView.loadUrl("javascript:showRPmarkers()");
-	    		cancelflag=1;
-	    		
-	    	}  else if(cancelflag==3)
-	    	{
-	    		routeKiller();
-	    		
-	    		cancelflag=0;
-	    		
-	    	}  
-	    }  
-	    
-	    public void goByflag() {  
-	       
-	    	if(goflag==1)
-	    	{
-	    		runOnUiThread(new Runnable() {
-		            public void run() {
-		            	if(TW.timerBtnFlag){
-		            		TW.stop();
-		        			
-		        			loop.endListener();
-		        			
-		        			timerBtn.setText("Start");
-		        	    	
-		        			TW.timerBtnFlag=false;
-		        	    	
-		        	    	mWebView.loadUrl("javascript:killCurrentLocation()");
-		            	}
-		            	TW.setTotalSec0();
-		            	mWebView.loadUrl("javascript:route("+RP.size()+")");
-		            	
-		           }
-		       });
-	    		
-	    		
-	    	}
-	    }  
+	   
 	    
 	    
-	    public int analysisJSON(String content,int postFlag){  
+	    public int analysisJSON(String center,String radius,String HttpTimeoutFlag,String content,int postFlag){  
 	    	if(postFlag==0){
 	    		
 	    		try {
@@ -1319,9 +548,9 @@ public class MainActivity extends Activity{
 	    		} catch (JSONException e) {
 	    			e.printStackTrace();
 	    		}  
-	    		 return -1;
+	    		 return 0;
 	        }else if(postFlag==2){
-	        	int ctr=-1;
+	        	int ctr=0;
 	        	try {
 	    			final JSONObject obj = new JSONObject(content);
 	    			
@@ -1359,41 +588,37 @@ public class MainActivity extends Activity{
 	    			
 	    			if(obj.getString("message").equals("success")==true){
 	    				String iiiToken=obj.getJSONObject("result").getString("token");
-	    				iiiRPsetting(iiiToken);
+	    				iiiRPsetting(iiiToken,center,radius,HttpTimeoutFlag);
 	    			}
 	    			
 	    		} catch (JSONException e) {
 	    			e.printStackTrace();
 	    		}  
-	        	return -1;
+	        	return 0;
 	        }
-			return -1;
+			return 0;
 	    }  
 	    
 	    
-	    public void iiiRPsetting(String iiiToken){
+	    public void iiiRPsetting(String iiiToken,String center,String radius,String HttpTimeoutFlag){
 	    	int i;
-	    	CGY.categorySend_init();
-	    	for(i=0;i<CGY.size();i++)
-	    	{
-	    		if(CGY.categoryChosen.get(i)==1)
-	    		{
-	    			CGY.categorySend.add(CGY.categoryValue.get(i));
-	    		}
-	    	}
+	    	int counter;
+	    	counter=CGY.categorySend_init();
+	    	
 	    	
 	    	String limit="20";
 	    	String categoryIndex="0";
 	    	String leftTimes="null";
 	    	String allFlag="null";
 	    	String keywordString="null";
+	    	String repeatTimes="0";
 	    	
-	    	if(CGY.categorySend.size()==0)
+	    	if(counter==0)
 	    	{
 	    		leftTimes="1";
 	    		allFlag="true";
-	    	}else if(CGY.categorySend.size()>0){
-	    		leftTimes=String.valueOf(CGY.categorySend.size());
+	    	}else if(counter>0){
+	    		leftTimes=String.valueOf(counter);
 	    		allFlag="false";
 	    	}
 	    	
@@ -1403,8 +628,7 @@ public class MainActivity extends Activity{
    		 		keywordString="null";
    		 	}
 	    	
-	    	//repeatTimes=0;
-	    	new postData2(MainActivity.this).execute(keywordString,limit,iiiToken,INF.radius,INF.center,categoryIndex,leftTimes,allFlag,"0");
+	    	new postData2().execute(keywordString,limit,iiiToken,radius,center,categoryIndex,leftTimes,allFlag,repeatTimes,HttpTimeoutFlag);
 	    }
 	    
 	    public void routeKiller(){
@@ -1437,9 +661,7 @@ public class MainActivity extends Activity{
 	       });
 	    }
 	    
-	    public void setHttpTimeoutFlag(){
-	    	HttpTimeoutFlag=true;
-	    }
+	   
 	    
 	    public category getCategory(){
 	    	return CGY;
@@ -1458,7 +680,7 @@ public class MainActivity extends Activity{
 	    	});
 	    }
 	    
-	    public void frpEnding(){
+	    public void frpEnding(String HttpTimeoutFlag){
 	    	if(RP.size()>0){
 		            	chooseRoadPointBtn.setEnabled(true);
 						rdmBtn.setEnabled(true);
@@ -1467,10 +689,10 @@ public class MainActivity extends Activity{
 	    	
 	    	findRoadPointBtn.setEnabled(true);
 	    	IIIswitch.setEnabled(true);
-	    	goflag=1;
-	    	cancelflag=1;
+	    	CGM.goflag=1;
+	    	CGM.cancelflag=1;
 	    	
-	    	if(HttpTimeoutFlag){
+	    	if(HttpTimeoutFlag.equals("true")){
 	    		Toast.makeText(MainActivity.this,"HTTP連線錯誤，路點可能因此短缺\n找到"+RP.size()+"個路點", 100).show();
 			}else{
 				Toast.makeText(MainActivity.this,"找到"+RP.size()+"個路點", 100).show();
@@ -1480,7 +702,7 @@ public class MainActivity extends Activity{
 	    
 	    public void setUidAndHisRoute(String uid_input){
 	    	uid=uid_input;
-			
+	
 			String savedPath=bundle.getString("savedPath");
 			
 			if(!savedPath.equals("null")){
@@ -1531,20 +753,19 @@ public class MainActivity extends Activity{
 	     }
 	    
 	    @JavascriptInterface
-	    public void frpReturn(final String center0,final String rad0,final String centerlt0,final String centerlg0,final String startLoc,final String endLoc)
+	    public void frpReturn(final String rad0,final String centerlt0,final String centerlg0,final String startLoc,final String endLoc)
 	    {
 	    	
-	    	INF.startLatLng=startLoc;
-	    	INF.endLatLng=endLoc;
-	    	INF.radius=rad0;
-	    	INF.center=center0;
+	    	SRM.startLatLng=startLoc;
+	    	SRM.endLatLng=endLoc;
 	    	
-			HttpTimeoutFlag=false;
+	    	final String HttpTimeoutFlag="false";
+	    	final String repeatTimes="0";
 			
 			runOnUiThread(new Runnable() {
 	            public void run() {
 	            	mWebView.loadUrl("javascript:killRPmarkers()");
-	            	new postData0(MainActivity.this).execute(centerlt0,centerlg0,rad0,"0");
+	            	new postData0().execute(centerlt0,centerlg0,rad0,repeatTimes,HttpTimeoutFlag);
 	           }
 	       });
 	    	
@@ -1555,7 +776,7 @@ public class MainActivity extends Activity{
 	    @JavascriptInterface
 	    public void routeReturn(final String distance,final String duration)
 	    {
-	    	cancelflag=2;
+	    	CGM.cancelflag=2;
 	    	
 	    	runOnUiThread(new Runnable() {
             public void run() {
@@ -1573,7 +794,7 @@ public class MainActivity extends Activity{
 	    @JavascriptInterface
 	    public void routeHisReturn(final String distance,final String duration)
 	    {
-	    	cancelflag=3;
+	    	CGM.cancelflag=3;
 	    	
 	    	runOnUiThread(new Runnable() {
 	    		public void run() {
@@ -1717,6 +938,783 @@ public class MainActivity extends Activity{
 	     }
 	    
 	    
+	    class getAu extends AsyncTask<String,Void, String>
+	    {
+	    	
+	    	@Override
+	    	protected String doInBackground(String... arg0) {
+	    		
+	    		String getUrl="http://easygo.ballchen.cc/isAuthenticated";
+	    		String content = "null";
+	    		 
+	            HttpGet get=new HttpGet(getUrl);  
+	    		 try {
+	    			
+	    			get.setHeader("cookie",arg0[0]);
+	    			
+	    			HttpClient client=new DefaultHttpClient();  
+	                HttpResponse response=client.execute(get);  
+	                if(response.getStatusLine().getStatusCode()==200){  
+	                    content=EntityUtils.toString(response.getEntity());   
+	                    flag=true;
+	                } else{
+	                	content=String.valueOf(response.getStatusLine().getStatusCode());
+	                	flag=false;
+	                }
+	    		} catch (ClientProtocolException e) {  
+	                e.printStackTrace();  
+	           } catch (IOException e) {  
+	                e.printStackTrace();  
+	           }  
+	    		
+	    		
+	    		return content;
+	    	}
+	    	
+	    	@Override
+	    	protected void onPostExecute(String result)
+	        {
+	    		if(!flag){
+	    			Toast.makeText(MainActivity.this, result,100).show();	
+	    		}else if(flag){
+	    			
+	    			try{
+	    				JSONObject obj = new JSONObject(result);
+	    			
+	    				if(obj.getString("message").equals("yes")==true){
+	    					setUidAndHisRoute(obj.getString("uid"));
+	    				}
+	    			
+	    			}catch (JSONException e) {
+	        			e.printStackTrace();
+	        		}  
+	    			
+	    		}
+	        }
+	    	
+	    	private boolean flag=false;
+	    }
+
+
+	    class postSaveRoute extends AsyncTask<String,Void, String>
+	    {
+	    	
+	    	@Override
+	    	protected String doInBackground(String... arg0) {
+	    		
+	    		String postUrl="http://easygo.ballchen.cc/history/create";
+	    		String content = "null";
+	    		List<NameValuePair> params=new ArrayList<NameValuePair>();  
+	            params.add(new BasicNameValuePair("path", arg0[0])); 
+	            params.add(new BasicNameValuePair("userid", arg0[1]));
+	    		 
+	       
+	            HttpPost post=new HttpPost(postUrl);  
+	    		 try {
+	    			post.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
+	    			
+	    			HttpClient client=new DefaultHttpClient();  
+	                HttpResponse response=client.execute(post);  
+	                
+	                if(response.getStatusLine().getStatusCode()==201){  
+	                	flag=true;
+	                }else{
+	                    flag=false;
+	                	
+	                }
+	    		} catch (ClientProtocolException e) {  
+	                e.printStackTrace();  
+	           } catch (IOException e) {  
+	                e.printStackTrace();  
+	           }  
+	    		
+	    		
+	    		return content;
+	    	}
+	    	
+	    	@Override
+	    	protected void onPostExecute(String result)
+	        {
+	    		if(!flag){
+	    			Toast.makeText(MainActivity.this,"收藏失敗",100).show();
+	    		}else{
+	    			Toast.makeText(MainActivity.this,"收藏成功",100).show();
+	    		}
+	        }
+	    	
+	    	private boolean flag=false;
+	    }
+
+	    class postData0 extends AsyncTask<String,Void,List<String>>
+	    {
+	    	
+	    	@Override
+	    	protected List<String> doInBackground(String... arg0) {
+	    		List<String> ListRtn=new ArrayList<String>();
+	    		ListRtn.add(arg0[0]);
+	            ListRtn.add(arg0[1]);
+	            ListRtn.add(arg0[2]);
+	            ListRtn.add(arg0[3]);
+	            ListRtn.add(arg0[4]);
+	            ListRtn.add("null2");
+	    		
+	        	String postUrl="http://easygo.ballchen.cc/check_roadpoint";
+	        	List<NameValuePair> params=new ArrayList<NameValuePair>();  
+	            params.add(new BasicNameValuePair("lat_self", arg0[0]));  
+	            params.add(new BasicNameValuePair("lon_self", arg0[1]));  
+	            params.add(new BasicNameValuePair("rad", arg0[2])); 
+	            
+	            HttpPost post=new HttpPost(postUrl);  
+	    		 try {
+	    			post.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
+	    			
+	    			HttpParams httpParameters=new BasicHttpParams();
+	    			HttpConnectionParams.setConnectionTimeout(httpParameters, 30000);
+	    			HttpConnectionParams.setSoTimeout(httpParameters, 30000);
+	    			HttpClient client=new DefaultHttpClient(httpParameters); 
+	                HttpResponse response=client.execute(post);  
+	               if(response.getStatusLine().getStatusCode()==200){  
+	            	   ListRtn.set(5,EntityUtils.toString(response.getEntity()));     
+	               }else{
+	            	   ListRtn.set(5,"null2");
+	               }
+	               
+	    		}catch (ConnectTimeoutException e) {  
+	    			
+	    			e.printStackTrace();
+	    			ListRtn.set(5,"null");
+	           }catch (SocketTimeoutException e) {  
+	    			
+	    			e.printStackTrace();  
+	    			ListRtn.set(5,"null");
+	           }catch (ClientProtocolException e) { 
+	           	
+	               e.printStackTrace();  
+	               ListRtn.set(5,"null2");
+	           } catch (IOException e) {
+	           	
+	               e.printStackTrace(); 
+	               ListRtn.set(5,"null2");
+	           }
+	    	   return ListRtn;
+	    	}
+	    	
+	    	@Override
+	    	protected void onPostExecute(List<String> result)
+	        {
+
+	    		//Toast.makeText(MainActivity.this,result,100).show();
+	    		
+	    		if(result.get(5).equals("null")){
+	    			if(Integer.valueOf(result.get(3))<1){
+	    				result.set(3,String.valueOf(Integer.valueOf(result.get(3))+1));
+	    				Toast.makeText(MainActivity.this,"連線逾時重新發起連線中",100).show();
+	    				new postData0().execute(result.get(0),result.get(1),result.get(2),result.get(3),result.get(4));
+	    			}else{
+	    				result.set(4,"true");
+	    				frpEnding(result.get(4));
+	    			}
+	    			
+	    		}else if(result.get(5).equals("null2")){
+	    			result.set(4,"true");
+	    			frpEnding(result.get(4));
+	    		}else{
+	    			analysisJSON("null","null","null",result.get(5),0);  
+	    			 
+	    			 if(!getSerApiFlag()){
+	    				 frpEnding(result.get(4));
+	    			 }else{
+	    				String center=result.get(0)+","+result.get(1);
+	    				String radius=result.get(2);
+	    				String repeatTimes="0";
+	    				String HttpTimeoutFlag=result.get(4);
+	    				 
+	    				 new postData1().execute(center,radius,repeatTimes,HttpTimeoutFlag);
+	    			 }
+	    		}
+	        }
+
+	    }
+
+	    class postData1 extends AsyncTask<String,Void,List<String>>
+	    {
+	    	
+	    	@Override
+	    	protected List<String> doInBackground(String... arg0) {
+	    		List<String> ListRtn=new ArrayList<String>();
+	    		ListRtn.add(arg0[0]); 
+	    		ListRtn.add(arg0[1]); 
+	    		ListRtn.add(arg0[2]); 
+	    		ListRtn.add(arg0[3]); 
+	    		ListRtn.add("null2");
+	    		
+	            String postUrl="http://api.ser.ideas.iii.org.tw/api/user/get_token";
+	    		List<NameValuePair> params=new ArrayList<NameValuePair>();  
+	            params.add(new BasicNameValuePair("id", "277b49909b1d1400b8a139f0d575cad5"));  
+	            params.add(new BasicNameValuePair("secret_key", "2681a844c37d538bbd53d5ac101a3f43"));  
+	            
+	            HttpPost post=new HttpPost(postUrl);  
+	    		 try {
+	    			post.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
+	    			
+	    			HttpParams httpParameters=new BasicHttpParams();
+	    			HttpConnectionParams.setConnectionTimeout(httpParameters, 15000);
+	    			HttpConnectionParams.setSoTimeout(httpParameters, 15000);
+	    			HttpClient client=new DefaultHttpClient(httpParameters); 
+	               HttpResponse response=client.execute(post);  
+	              if(response.getStatusLine().getStatusCode()==200){  
+	            	  ListRtn.set(4,EntityUtils.toString(response.getEntity()));     
+	              }else{
+
+	            	  ListRtn.set(4,"null2");
+	              }
+	    		}catch (ConnectTimeoutException e) {  
+	    			
+	    			e.printStackTrace();  
+	    			ListRtn.set(4,"null");
+	          }catch (SocketTimeoutException e) {  
+	    			
+	    			e.printStackTrace();  
+	    			ListRtn.set(4,"null");
+	          }catch (ClientProtocolException e) { 
+	          	
+	              e.printStackTrace();  
+	              ListRtn.set(4,"null2");
+	          } catch (IOException e) {
+	          	
+	              e.printStackTrace(); 
+	              ListRtn.set(4,"null2");
+	          }
+	    		 
+	    		 return ListRtn;
+	    	}
+	    	
+	    	@Override
+	    	protected void onPostExecute(List<String> result)
+	        {	
+	    		if(result.get(4).equals("null")){
+	    			if(Integer.valueOf(result.get(2))<2){
+	    				result.set(2,String.valueOf(Integer.valueOf(result.get(2))+1));
+	    				Toast.makeText(MainActivity.this,"連線逾時重新發起連線中",100).show();
+	    				new postData1().execute(result.get(0),result.get(1),result.get(2),result.get(3));
+	    			}else{
+	    				result.set(3,"true");
+	    				frpEnding(result.get(3));
+	    			}
+	    		}else if(result.get(4).equals("null2")){
+	    			result.set(3,"true");
+	    			frpEnding(result.get(3));
+	    		}else{
+	    			analysisJSON(result.get(0),result.get(1),result.get(3),result.get(4),1);  
+	    		}
+	        }
+	    	
+	    }
+
+	    class postData2 extends AsyncTask<String,Void,List<String>>
+	    {
+	    	
+	    	@Override
+	    	protected List<String> doInBackground(String... arg0) {
+	    		List<String> ListRtn=new ArrayList<String>();
+	    		ListRtn.add(arg0[0]);
+	            ListRtn.add(arg0[1]);
+	            ListRtn.add(arg0[2]);
+	            ListRtn.add(arg0[3]);
+	            ListRtn.add(arg0[4]);
+	            ListRtn.add(arg0[5]);
+	            ListRtn.add(arg0[6]);
+	            ListRtn.add(arg0[7]);
+	            ListRtn.add(arg0[8]);
+	            ListRtn.add(arg0[9]);
+	            ListRtn.add("null");
+	    		
+	    		String postUrl="http://api.ser.ideas.iii.org.tw/api/fb_checkin_search";
+	        	List<NameValuePair> params=new ArrayList<NameValuePair>();  
+
+	        	 params.add(new BasicNameValuePair("coordinates", arg0[4]));
+	    		 params.add(new BasicNameValuePair("radius", arg0[3]));
+	    		 params.add(new BasicNameValuePair("limit", arg0[1]));
+	    		 params.add(new BasicNameValuePair("token", arg0[2]));
+	    		 
+	    		 if(!arg0[0].equals("null")){
+	    			 params.add(new BasicNameValuePair("keyword",arg0[0]));
+	    		 }
+	        	
+	        	if(arg0[7].equals("false")){
+	        		params.add(new BasicNameValuePair("category",getCategory().categorySend.get(Integer.valueOf(arg0[5]))));
+	        	}
+	        	
+	        	  HttpPost post=new HttpPost(postUrl);  
+	    			 try {
+	    				post.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
+	    				
+	    				HttpParams httpParameters=new BasicHttpParams();
+	    				HttpConnectionParams.setConnectionTimeout(httpParameters, 15000);
+	    				HttpConnectionParams.setSoTimeout(httpParameters, 15000);
+	    				HttpClient client=new DefaultHttpClient(httpParameters); 
+	                   HttpResponse response=client.execute(post);  
+	                  if(response.getStatusLine().getStatusCode()==200){  
+	                	  ListRtn.set(10,EntityUtils.toString(response.getEntity()));     
+	                      
+	                  }else{
+	                	  ListRtn.set(9,"true");
+	                	  ListRtn.set(10,"null");
+	                  }
+	    			}catch (ConnectTimeoutException e) {  
+	    				ListRtn.set(9,"true");
+	    				e.printStackTrace();  
+	    				ListRtn.set(10,"null");
+	              }catch (SocketTimeoutException e) {  
+	            	  	ListRtn.set(9,"true");
+	    				e.printStackTrace();  
+	    				ListRtn.set(10,"null");
+	              }catch (ClientProtocolException e) { 
+	            	  ListRtn.set(9,"true");
+	                  e.printStackTrace();  
+	                  ListRtn.set(10,"null");
+	              } catch (IOException e) {
+	            	  ListRtn.set(9,"true");
+	                  e.printStackTrace(); 
+	                  ListRtn.set(10,"null");
+	              }
+	    			 return ListRtn;
+	    	}
+	    	
+	    	@Override
+	    	protected void onPostExecute(List<String> result)
+	        {
+	    		if(!result.get(10).equals("null")){
+	    			int fnd=analysisJSON("null","null","null",result.get(10),2);  
+	    			int limit_l=Integer.valueOf(result.get(1))-fnd;
+	    			int leftTimes_l=Integer.valueOf(result.get(6))-1;
+	    			result.set(1,String.valueOf(limit_l));
+	    			 
+	    			 result.set(6,String.valueOf(leftTimes_l));
+	    		    	
+	    		     if((leftTimes_l!=0)&&(limit_l>0))
+	    			 {
+	    		    	 result.set(5,String.valueOf(Integer.valueOf(result.get(5))+1));
+	    		    	new postData2().execute(result.get(0),result.get(1),result.get(2),result.get(3),result.get(4),result.get(5),result.get(6),result.get(7),result.get(8),result.get(9));
+	    			 }else{
+	    				 frpEnding(result.get(9));
+	    			 }
+	    		}else{
+	    			frpEnding(result.get(9));
+	    		}
+	    		
+	    		  /* if(result.get(10).equals("null")){
+	    		   		if(Integer.valueOf(result.get(8))<2){
+	    					result.set(8,String.valueOf(Integer.valueOf(result.get(8))+1));
+	    					Toast.makeText(MainActivity.this,"連線逾時重新發起連線中",100).show();
+	    					new postData2().execute(result.get(0),result.get(1),result.get(2),result.get(3),result.get(4),result.get(5),result.get(6),result.get(7),result.get(8),result.get(9));
+	    				}else{
+	    					result.set(9,"true");
+	    				    frpEnding(result.get(9));
+	    				}
+	    		   }else if(result.get(10).equals("null2")){
+	    			    result.set(9,"true");
+	    				frpEnding(result.get(9));
+	    		   }else{
+	    		     	int fnd=analysisJSON("null","null","null",result.get(10),2);  
+	    				int limit_l=Integer.valueOf(result.get(1))-fnd;
+	    				int leftTimes_l=Integer.valueOf(result.get(6))-1;
+	    				result.set(1,String.valueOf(limit_l));
+	    				 
+	    				 result.set(6,String.valueOf(leftTimes_l));
+	    			    	
+	    			     if((leftTimes_l!=0)&&(limit_l>0))
+	    				 {
+	    			    	 result.set(5,String.valueOf(Integer.valueOf(result.get(5))+1));
+	    			    	 result.set(8,"0");
+	    			    	 new postData2().execute(result.get(0),result.get(1),result.get(2),result.get(3),result.get(4),result.get(5),result.get(6),result.get(7),result.get(8),result.get(9));
+	    				 }else{
+	    					 frpEnding(result.get(9));
+	    				 }	
+	    		   }*/
+	    		   //keep sending the same http request when not get data in time
+	    		  //DO NOT use these codes while there is still usage limit on SER(III) API   
+	        }
+	    	
+	    }
+
+	    class timeWatch{
+	    	
+	    	public timeWatch(){
+	    		timerBtnFlag=false;
+	    		setTotalSec0();
+	    	}
+	    	
+	    	public void start(){
+	    		
+	    		timer=new Timer();
+	    		timer.schedule(new myTask(), 0,1000);
+	    	}
+	    	
+	    	public void stop(){
+	    		timer.cancel();
+	    		timer.purge();
+	    	}
+	    	
+	    	public void setTotalSec0(){
+	    		totalSec=0;
+	    	}
+	    	
+	    	private class myTask extends TimerTask {
+	    	    
+	    	     @ Override
+	    	      public void run() {
+	    	    	 totalSec+=1;
+	    			 int ss=totalSec;
+	    		     int hh=ss/3600;
+	    			 ss-=(hh*3600);
+	    			 int mm=ss/60;
+	    			 ss-=(mm*60);
+	    			 
+	    			 String sString=String.valueOf(ss);
+	    			 String mString=String.valueOf(mm);
+	    			 String hString=String.valueOf(hh);
+	    			 final String sString2;
+	    			 final String mString2;
+	    			 final String hString2;
+	    		
+	    			 if(hh<10)
+	    			 {
+	    				 hString2="0"+hString+":";
+	    			 }else
+	    			 {
+	    				 hString2=hString+":";
+	    			 }
+
+	    			 if(mm<10)
+	    			 {
+	    				 mString2="0"+mString+":";
+	    			 }else
+	    			 {
+	    				 mString2=mString+":";
+	    			 }
+
+	    			  if(ss<10)
+	    			 {
+	    				  sString2="0"+sString;
+	    			 }else
+	    			 {
+	    				 sString2=sString;
+	    			 }
+	    			  
+	    			  
+	    			 setTimeWatchText(hString2+mString2+sString2);
+	    		       
+	    	     }
+	    	}
+	    	
+	    	private int totalSec;
+	    	private Timer timer;
+	    	public boolean timerBtnFlag;
+	    }
+
+
+	    class getLocationFromPhone{
+	    	public getLocationFromPhone(boolean OnceLoopFlag){
+	    		 OnceLoopFlag_c=OnceLoopFlag;
+	    		
+	    		 Lmgr=(LocationManager)MainActivity.this.getSystemService(Context.LOCATION_SERVICE);
+	    		 locationListener = new LocationListener(){
+
+	    				@Override
+	    				public void onLocationChanged(Location location) {
+	    					// TODO Auto-generated method stub
+	    					
+	    					String Lat=String.valueOf(location.getLatitude());
+	    					String Lon=String.valueOf(location.getLongitude());
+	    					
+	    					
+	    					if(!OnceLoopFlag_c){
+	    						if(StartEndRunningFlag==1){
+	    							mWebView.loadUrl("javascript:startLocation("+Lat+","+Lon+")");
+	    						}else if(StartEndRunningFlag==2){
+	    							mWebView.loadUrl("javascript:endLocation("+Lat+","+Lon+")");
+	    						}
+	    						endListenerSE();
+	    					}else{
+	    						
+	    						  mWebView.loadUrl("javascript:currentLocation("+Lat+","+Lon+")");
+	    					}
+	    				}
+
+	    				@Override
+	    				public void onProviderDisabled(String provider) {
+	    					// TODO Auto-generated method stub
+	    					if(provider.equals( bestLocationProvider)==true){
+	    						endListenerSE();
+	    					}
+	    				}
+
+	    				@Override
+	    				public void onProviderEnabled(String provider) {
+	    					// TODO Auto-generated method stub
+	    					
+	    				}
+
+	    				@Override
+	    				public void onStatusChanged(String provider, int status,
+	    						Bundle extras) {
+	    					// TODO Auto-generated method stub
+	    				}
+	    	        };
+	    		 
+	    	}
+	    	
+	    	public void startListenerSE(int inputFlag){
+	    		if(StartEndRunningFlag==0){
+	    			StartEndRunningFlag=inputFlag;
+	    			startListener();
+	    		}
+	    	}
+	    	
+	    	public void endListenerSE(){
+	    		StartEndRunningFlag=0;
+	    	    endListener();
+	    	}
+	    	
+	    	public void startListener(){
+	    		Criteria c=new Criteria();
+	    		bestLocationProvider=Lmgr.getBestProvider(c, true);
+	    		Lmgr.requestLocationUpdates(bestLocationProvider,0,0,locationListener);
+	    	}
+	    	
+	        public void endListener(){
+	        	Lmgr.removeUpdates(locationListener);
+	    	}
+	    	
+	    	private LocationManager Lmgr;
+	    	private String bestLocationProvider;
+	    	private LocationListener locationListener;
+	    	private int StartEndRunningFlag=0;
+	    	private boolean OnceLoopFlag_c;
+	    	
+	    }
+
+	    class roadPoint{
+	    	
+	    	roadPoint(){
+	    		init();
+	    	}
+	    	
+	    	public void init(){
+	    		roadPointLocation=new ArrayList<String>();
+	    		roadPointTitle=new ArrayList<String>();
+	    		roadPointLocationChosen=new ArrayList<Integer>();
+	    		rpChosenNumber=0;
+	    	} 
+	    	
+	    	public int size(){
+	    		return roadPointLocation.size();
+	    	}
+
+	    	public List<String> roadPointLocation;
+	    	public List<Integer> roadPointLocationChosen;
+	    	public List<String> roadPointTitle;
+	    	
+	    	public int rpChosenNumber;
+	    	public String[] num={"零","一","二","三","四","五","六"};
+	    }
+
+	    class savedRoadPoint{
+	    	
+	    	savedRoadPoint(){
+	    		init();
+	    	}
+	    	
+	    	public void init(){
+	    		savedRoadPointLocation=new ArrayList<String>();
+	    		savedRoadPointTitle=new ArrayList<String>();
+	    	} 
+	    	
+	    	public int size(){
+	    		return savedRoadPointLocation.size();
+	    	}
+
+	    	public List<String> savedRoadPointLocation;
+	    	public List<String> savedRoadPointTitle;
+
+	    }
+
+	    class category{
+
+	    	category(){
+	    		categoryName=new ArrayList<String>();
+	        	categoryChosen=new ArrayList<Integer>();
+	        	categoryValue=new ArrayList<String>();
+	        	
+	        	categoryName.add("商務"); categoryValue.add("Local business"); categoryChosen.add(0);
+	        	categoryName.add("餐廳"); categoryValue.add("Restaurant/cafe"); categoryChosen.add(0);
+	        	categoryName.add("旅館"); categoryValue.add("Hotel"); categoryChosen.add(0);
+	        	categoryName.add("休閒"); categoryValue.add("Travel/leisure"); categoryChosen.add(0);
+	        	categoryName.add("學校"); categoryValue.add("School"); categoryChosen.add(0);
+	        	categoryName.add("地標"); categoryValue.add("Landmark"); categoryChosen.add(0);
+	        	categoryName.add("觀光"); categoryValue.add("Tours/sightseeing"); categoryChosen.add(0);
+	        	categoryName.add("娛樂"); categoryValue.add("Arts/entertainment/nightlife"); categoryChosen.add(0);
+	        	categoryName.add("購物"); categoryValue.add("Shopping/retail"); categoryChosen.add(0);
+	        	categoryName.add("美容"); categoryValue.add("Health/beauty"); categoryChosen.add(0);
+	        	categoryName.add("食品"); categoryValue.add("Food/grocery"); categoryChosen.add(0);
+	        	categoryName.add("飲料"); categoryValue.add("Food/beverages"); categoryChosen.add(0);
+	        	categoryName.add("服飾"); categoryValue.add("Clothing"); categoryChosen.add(0);
+	        	categoryName.add("宗教"); categoryValue.add("Church/religious organization"); categoryChosen.add(0);
+	        	categoryName.add("博物館"); categoryValue.add("Museum/art gallery"); categoryChosen.add(0);
+	        	categoryName.add("體育館"); categoryValue.add("Sports venue"); categoryChosen.add(0);
+	        	categoryName.add("酒吧"); categoryValue.add("Bar"); categoryChosen.add(0);
+	        	categoryName.add("俱樂部"); categoryValue.add("Club"); categoryChosen.add(0);
+	        	categoryName.add("圖書館"); categoryValue.add("Library"); categoryChosen.add(0);
+	        	categoryName.add("零售店"); categoryValue.add("Retail and consumer merchandise"); categoryChosen.add(0);
+	        	categoryName.add("書店"); categoryValue.add("Book store"); categoryChosen.add(0);
+	        	categoryName.add("政府"); categoryValue.add("Government organization"); categoryChosen.add(0);
+	        	categoryName.add("電影院"); categoryValue.add("Movie theater"); categoryChosen.add(0);
+	        	categoryName.add("珠寶"); categoryValue.add("Jewelry/watches"); categoryChosen.add(0);
+	        	categoryName.add("院所"); categoryValue.add("Hospital/clinic"); categoryChosen.add(0);
+	    	}
+	    	
+	    	public int categorySend_init(){
+	    		int i;
+	    		categorySend=new ArrayList<String>();
+	    		for(i=0;i<size();i++)
+	        	{
+	        		if(categoryChosen.get(i)==1)
+	        		{
+	        			categorySend.add(categoryValue.get(i));
+	        		}
+	        	}
+	    		return categorySend.size();
+	    	} 
+	    	
+	    	public int size(){
+	    		return categoryName.size();
+	    	}
+	    	
+	    	
+	    	public List<String> categoryName;
+	    	public List<String> categoryValue;
+	    	public List<String> categorySend;
+	    	public List<Integer> categoryChosen;
+	    }
+
+	    class saveRouteManager{
+	    	saveRouteManager(){
+	    		startAddress="null";
+		    	endAddress="null";
+		    	startLatLng="null";
+		    	endLatLng="null";
+	    	}
+	    	
+	    	public String getRouteToSave(roadPoint input){
+	    		int y;
+    			String route="";
+    			route=route+"{\"land\":\""+startLatLng+"\",\"name\":\""+startAddress+"\"},";
+    			
+    			for(y=0;y<input.size();y++){
+    				if(input.roadPointLocationChosen.get(y)==1){
+    					route=route+"{\"land\":\""+input.roadPointLocation.get(y)+"\",\"name\":\""+input.roadPointTitle.get(y)+"\"},";
+    				}
+    			}
+    			
+    			route=route+"{\"land\":\""+endLatLng+"\",\"name\":\""+endAddress+"\"}";
+    			
+    			return route;
+	    	}
+	    	
+	    	public String startAddress;
+	    	public String endAddress;
+	    	public String startLatLng;
+	    	public String endLatLng;
+	    	
+	    }
+	    
+	    class cancelGoManager{
+	    	cancelGoManager(){
+	    		cancelflag=0;
+		    	goflag=0;
+	    	}
+	    	
+	    	 public void cancelByflag(final roadPoint input) {  
+	 	    	if(cancelflag==1)
+	 	    	{
+	 	    		if(input.size()>0){
+	 	    			int a;
+	 	    			for(a=0;a<input.size();a++)
+	 	    			{
+	 	    				input.roadPointLocationChosen.set(a,0);
+	 	    				mWebView.loadUrl("javascript:setOrgIcon("+String.valueOf(a)+")");
+	 	    			}
+	 	    		
+	 	    			runOnUiThread(new Runnable() {
+	 	    				public void run() {
+	 	    					input.rpChosenNumber=0;
+	 	    					chooseRoadPointBtn.setText("選擇路點");
+	 	    					chooseRoadPointBtn.setEnabled(true);
+	 	    				}
+	 	    			});
+	 	    		}
+	 	    	}else if(cancelflag==2)
+	 	    	{
+	 	    		routeKiller();
+	 	    
+	 	    		if(input.size()>0){
+	 	    			int a;
+	 	    			for(a=0;a<input.size();a++)
+	 					{
+	 	    				input.roadPointLocationChosen.set(a,0);
+	 						mWebView.loadUrl("javascript:setOrgIcon("+String.valueOf(a)+")");
+	 					}
+	 	    		
+	 	    			runOnUiThread(new Runnable() {
+	 		            	public void run() {
+	 		            		chooseRoadPointBtn.setEnabled(true);
+	 		            	}
+	 		        	});
+	 	    		}
+	 	    		
+	 	    		mWebView.loadUrl("javascript:showRPmarkers()");
+	 	    		cancelflag=1;
+	 	    		
+	 	    	}  else if(cancelflag==3)
+	 	    	{
+	 	    		routeKiller();
+	 	    		
+	 	    		cancelflag=0;
+	 	    		
+	 	    	}  
+	 	    }  
+	 	    
+	 	    public void goByflag(final roadPoint input1,final timeWatch input2) {  
+	 	       
+	 	    	if(goflag==1)
+	 	    	{
+	 	    		runOnUiThread(new Runnable() {
+	 		            public void run() {
+	 		            	if(input2.timerBtnFlag){
+	 		            		input2.stop();
+	 		        			
+	 		        			loop.endListener();
+	 		        			
+	 		        			timerBtn.setText("Start");
+	 		        	    	
+	 		        			input2.timerBtnFlag=false;
+	 		        	    	
+	 		        	    	mWebView.loadUrl("javascript:killCurrentLocation()");
+	 		            	}
+	 		            	input2.setTotalSec0();
+	 		            	mWebView.loadUrl("javascript:route("+input1.size()+")");
+	 		            	
+	 		           }
+	 		       });
+	 	    		
+	 	    		
+	 	    	}
+	 	    }  
+	 	    
+	    	public int cancelflag;
+	    	public int goflag;
+	    }
 }
 
 

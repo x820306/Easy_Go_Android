@@ -31,184 +31,6 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
-class getAu2 extends AsyncTask<String,Void, String>
-{
-	getAu2(History Hry){
-		Hry_c=Hry;
-	}
-	
-	@Override
-	protected String doInBackground(String... arg0) {
-		
-		String getUrl="http://192.168.1.108:1337/isAuthenticated";
-		String content = "null";
-		 
-        HttpGet get=new HttpGet(getUrl);  
-		 try {
-			
-			get.setHeader("cookie",arg0[0]);
-			
-			HttpClient client=new DefaultHttpClient();  
-            HttpResponse response=client.execute(get);  
-            if(response.getStatusLine().getStatusCode()==200){  
-                content=EntityUtils.toString(response.getEntity());   
-                flag=true;
-            } else{
-            	content=String.valueOf(response.getStatusLine().getStatusCode());
-            	flag=false;
-            }
-		} catch (ClientProtocolException e) {  
-            e.printStackTrace();  
-       } catch (IOException e) {  
-            e.printStackTrace();  
-       }  
-		
-		
-		return content;
-	}
-	
-	@Override
-	protected void onPostExecute(String result)
-    {
-		if(!flag){
-			Toast.makeText(Hry_c, result,100).show();	
-		}else{
-			
-			try{
-				JSONObject obj = new JSONObject(result);
-			
-				if(obj.getString("message").equals("yes")==true){
-					new getRoute(Hry_c).execute(obj.getString("uid"));
-				}
-			
-			}catch (JSONException e) {
-    			e.printStackTrace();
-    		}  
-			
-		}
-    }
-	
-	private History Hry_c;
-	private boolean flag=false;
-}
-
-class getRoute extends AsyncTask<String,Void, String>
-{
-	getRoute(History Hry){
-		Hry_c=Hry;
-	}
-	
-	
-	@Override
-	protected String doInBackground(String... arg0) {
-		
-		String getUrl="http://192.168.1.108:1337/history/find/user/"+arg0[0];
-		String content = "null";
-		 
-        HttpGet get=new HttpGet(getUrl);  
-		 try {
-			
-			HttpClient client=new DefaultHttpClient();  
-            HttpResponse response=client.execute(get);  
-            if(response.getStatusLine().getStatusCode()==200){  
-                content=EntityUtils.toString(response.getEntity());   
-                flag=true;
-            } else{
-            	content=String.valueOf(response.getStatusLine().getStatusCode());
-            	flag=false;
-            }
-		} catch (ClientProtocolException e) {  
-            e.printStackTrace();  
-       } catch (IOException e) {  
-            e.printStackTrace();  
-       }  
-		
-		
-		return content;
-	}
-	
-	@Override
-	protected void onPostExecute(String result)
-    {
-		if(!flag){
-			Toast.makeText(Hry_c, result,100).show();	
-		}else if(flag){
-			Hry_c.showHistoryPaths(result);
-		}
-    }
-	
-	private History Hry_c;
-	private boolean flag=false;
-}
-
-class deletePath extends AsyncTask<String,Void, Integer>
-{
-	deletePath(History Hry){
-		Hry_c=Hry;
-	}
-	
-	@Override
-	protected Integer doInBackground(String... arg0) {
-		
-		String getUrl="http://192.168.1.108:1337/history/destroy/"+arg0[0];
-		int Scode;
-		int lFlag=0;
-		 
-        HttpGet get=new HttpGet(getUrl);  
-		 try {
-			
-			HttpClient client=new DefaultHttpClient();  
-            HttpResponse response=client.execute(get);  
-            Scode=response.getStatusLine().getStatusCode();
-            if((Scode==200)||(Scode==204)||(Scode==202)){   
-            	lFlag=1;
-            } else{
-            	lFlag=0;
-            }
-		} catch (ClientProtocolException e) {  
-            e.printStackTrace();  
-       } catch (IOException e) {  
-            e.printStackTrace();  
-       }
-		return lFlag;  
-	}
-	
-	@Override
-	protected void onPostExecute(Integer result)
-    {
-		if(result==0){
-			Toast.makeText(Hry_c,"刪除失敗",100).show();	
-		}else if(result==1){
-			Toast.makeText(Hry_c,"刪除成功",100).show();
-			Hry_c.init();
-		}
-    }
-	
-	private History Hry_c;
-}
-
-class pathClass{
-	pathClass(){
-		init();
-	}
-	
-	public void init(){
-		pathName=new ArrayList<String>();
-        pathContent=new ArrayList<String>();
-        pathID=new ArrayList<String>();
-	}
-	
-	public int size(){
-		return pathName.size();
-	}
-	
-	public List<String> pathName;
-	public List<String> pathContent;
-	public List<String> pathID;
-}
-
-
-
 
 public class History extends Activity {
 	
@@ -217,6 +39,7 @@ public class History extends Activity {
 	 private LinearLayout ll;
 	 private ListView mainListView;
 	 private ArrayAdapter<String> listAdapter;
+	 
 	 public void init(){
 		 if(PC.size()>0){
 			 PC.init();
@@ -225,7 +48,7 @@ public class History extends Activity {
 		 }
 		 
 		 if(!cookie.equals("null")){
-	        	new getAu2(History.this).execute(cookie);
+	        	new getAu2().execute(cookie);
 	        } 
 	 }
 	
@@ -252,7 +75,6 @@ public class History extends Activity {
 	 
 	 public void showHistoryPaths(String result){
 
-			
 			try{
 				final JSONArray dataAry= new JSONArray(result);
 			    int i;
@@ -305,7 +127,7 @@ public class History extends Activity {
 			                @Override
 			                public void onClick(DialogInterface dialog, int which) {
 			                    // TODO Auto-generated method stub
-			                	new deletePath(History.this).execute(PC.pathID.get(position));
+			                	new deletePath().execute(PC.pathID.get(position));
 			                }
 			            })
 			            .setNegativeButton("否", new DialogInterface.OnClickListener() {
@@ -331,5 +153,165 @@ public class History extends Activity {
 	 		
 		}
 	 
-	 
+	 class getAu2 extends AsyncTask<String,Void, String>
+	 {
+	 	@Override
+	 	protected String doInBackground(String... arg0) {
+	 		
+	 		String getUrl="http://easygo.ballchen.cc/isAuthenticated";
+	 		String content = "null";
+	 		 
+	         HttpGet get=new HttpGet(getUrl);  
+	 		 try {
+	 			
+	 			get.setHeader("cookie",arg0[0]);
+	 			
+	 			HttpClient client=new DefaultHttpClient();  
+	             HttpResponse response=client.execute(get);  
+	             if(response.getStatusLine().getStatusCode()==200){  
+	                 content=EntityUtils.toString(response.getEntity());   
+	                 flag=true;
+	             } else{
+	             	content=String.valueOf(response.getStatusLine().getStatusCode());
+	             	flag=false;
+	             }
+	 		} catch (ClientProtocolException e) {  
+	             e.printStackTrace();  
+	        } catch (IOException e) {  
+	             e.printStackTrace();  
+	        }  
+	 		
+	 		
+	 		return content;
+	 	}
+	 	
+	 	@Override
+	 	protected void onPostExecute(String result)
+	     {
+	 		if(!flag){
+	 			Toast.makeText(History.this, result,100).show();	
+	 		}else{
+	 			
+	 			try{
+	 				JSONObject obj = new JSONObject(result);
+	 			
+	 				if(obj.getString("message").equals("yes")==true){
+	 					new getRoute().execute(obj.getString("uid"));
+	 				}
+	 			
+	 			}catch (JSONException e) {
+	     			e.printStackTrace();
+	     		}  
+	 			
+	 		}
+	     }
+	 	
+	 	private boolean flag=false;
+	 }
+
+	 class getRoute extends AsyncTask<String,Void, String>
+	 {
+	 	
+	 	@Override
+	 	protected String doInBackground(String... arg0) {
+	 		
+	 		String getUrl="http://easygo.ballchen.cc/history/find/user/"+arg0[0];
+	 		String content = "null";
+	 		 
+	         HttpGet get=new HttpGet(getUrl);  
+	 		 try {
+	 			
+	 			HttpClient client=new DefaultHttpClient();  
+	             HttpResponse response=client.execute(get);  
+	             if(response.getStatusLine().getStatusCode()==200){  
+	                 content=EntityUtils.toString(response.getEntity());   
+	                 flag=true;
+	             } else{
+	             	content=String.valueOf(response.getStatusLine().getStatusCode());
+	             	flag=false;
+	             }
+	 		} catch (ClientProtocolException e) {  
+	             e.printStackTrace();  
+	        } catch (IOException e) {  
+	             e.printStackTrace();  
+	        }  
+	 		
+	 		
+	 		return content;
+	 	}
+	 	
+	 	@Override
+	 	protected void onPostExecute(String result)
+	     {
+	 		if(!flag){
+	 			Toast.makeText(History.this, result,100).show();	
+	 		}else if(flag){
+	 			showHistoryPaths(result);
+	 		}
+	     }
+	 	
+	 	private boolean flag=false;
+	 }
+
+	 class deletePath extends AsyncTask<String,Void, Integer>
+	 {
+	 	
+	 	@Override
+	 	protected Integer doInBackground(String... arg0) {
+	 		
+	 		String getUrl="http://easygo.ballchen.cc/history/destroy/"+arg0[0];
+	 		int Scode;
+	 		int lFlag=0;
+	 		 
+	         HttpGet get=new HttpGet(getUrl);  
+	 		 try {
+	 			
+	 			HttpClient client=new DefaultHttpClient();  
+	             HttpResponse response=client.execute(get);  
+	             Scode=response.getStatusLine().getStatusCode();
+	             if((Scode==200)||(Scode==204)||(Scode==202)){   
+	             	lFlag=1;
+	             } else{
+	             	lFlag=0;
+	             }
+	 		} catch (ClientProtocolException e) {  
+	             e.printStackTrace();  
+	        } catch (IOException e) {  
+	             e.printStackTrace();  
+	        }
+	 		return lFlag;  
+	 	}
+	 	
+	 	@Override
+	 	protected void onPostExecute(Integer result)
+	     {
+	 		if(result==0){
+	 			Toast.makeText(History.this,"刪除失敗",100).show();	
+	 		}else if(result==1){
+	 			Toast.makeText(History.this,"刪除成功",100).show();
+	 			init();
+	 		}
+	     }
+	 	
+	 }
+
+	 class pathClass{
+	 	pathClass(){
+	 		init();
+	 	}
+	 	
+	 	public void init(){
+	 		pathName=new ArrayList<String>();
+	         pathContent=new ArrayList<String>();
+	         pathID=new ArrayList<String>();
+	 	}
+	 	
+	 	public int size(){
+	 		return pathName.size();
+	 	}
+	 	
+	 	public List<String> pathName;
+	 	public List<String> pathContent;
+	 	public List<String> pathID;
+	 }
 }

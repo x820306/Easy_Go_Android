@@ -38,104 +38,6 @@ import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;  
 import com.facebook.widget.LoginButton;  
 
-  
-class postToken extends AsyncTask<String,Void, String>
-{
-	postToken(MainFragment mf){
-		mf_c=mf;
-	}
-	
-	@Override
-	protected String doInBackground(String... arg0) {
-		
-		String postUrl="http://192.168.1.108:1337/android_login";
-		String content = "null";
-		List<NameValuePair> params=new ArrayList<NameValuePair>();  
-        params.add(new BasicNameValuePair("access_token", arg0[0]));  
-		 
-   
-        HttpPost post=new HttpPost(postUrl);  
-		 try {
-			post.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
-			
-			HttpClient client=new DefaultHttpClient();  
-            HttpResponse response=client.execute(post);  
-            if(response.getStatusLine().getStatusCode()==200){  
-               //content=EntityUtils.toString(response.getEntity());    
-               content=response.getFirstHeader("Set-Cookie").getValue();
-
-               
-            } else{
-            	content="null";
-            	
-            }
-		} catch (ClientProtocolException e) {  
-            e.printStackTrace();  
-       } catch (IOException e) {  
-            e.printStackTrace();  
-       }  
-		
-		
-		return content;
-	}
-	
-	@Override
-	protected void onPostExecute(String result)
-    {
-		mf_c.finishLogin(result);
-    }
-	
-	private MainFragment mf_c;
-}
-
-
-class logOut extends AsyncTask<String,Void, String>
-{
-	logOut(MainFragment mf){
-		mf_c=mf;
-	}
-	
-	@Override
-	protected String doInBackground(String... arg0) {
-		
-		String getUrl="http://192.168.1.108:1337/logout";
-		String content = "null";
-		 
-        HttpGet get=new HttpGet(getUrl);  
-		 try {
-			
-			get.setHeader("cookie",arg0[0]);
-			
-			HttpClient client=new DefaultHttpClient();  
-            HttpResponse response=client.execute(get);  
-            
-            if(response.getStatusLine().getStatusCode()==200){  
-                flag=true;
-            } else{
-            	flag=false;
-            }
-            
-            content=String.valueOf(response.getStatusLine().getStatusCode());
-		} catch (ClientProtocolException e) {  
-            e.printStackTrace();  
-       } catch (IOException e) {  
-            e.printStackTrace();  
-       }  
-		
-		
-		return content;
-	}
-	
-	@Override
-	protected void onPostExecute(String result)
-    {
-		mf_c.finishLogout(flag,result);
-    }
-	
-	private MainFragment mf_c;
-	private boolean flag=false;
-}
-
 
 public class MainFragment extends Fragment {  
     private static final String TAG = "MainFragment";  
@@ -216,7 +118,7 @@ public class MainFragment extends Fragment {
                 //Toast.makeText(getActivity(), session.getAccessToken(),100).show();
                 goImgBtn.setEnabled(false);
                 String token=session.getAccessToken();
-                new postToken(MainFragment.this).execute(token);
+                new postToken().execute(token);
         	}
         } else if (state.isClosed()) {  
             Log.i(TAG, "Logged out..."); 
@@ -224,7 +126,7 @@ public class MainFragment extends Fragment {
             if(!cookie.equals("null")){
             	goImgBtn.setEnabled(false);
             	historyImgBtn.setEnabled(false);
-            	new logOut(MainFragment.this).execute(cookie);
+            	new logOut().execute(cookie);
             }
             
         }  
@@ -309,6 +211,93 @@ public class MainFragment extends Fragment {
         return false;
     }
     
+    class postToken extends AsyncTask<String,Void, String>
+    {
+    	
+    	@Override
+    	protected String doInBackground(String... arg0) {
+    		
+    		String postUrl="http://easygo.ballchen.cc/android_login";
+    		String content = "null";
+    		List<NameValuePair> params=new ArrayList<NameValuePair>();  
+            params.add(new BasicNameValuePair("access_token", arg0[0]));  
+    		 
+       
+            HttpPost post=new HttpPost(postUrl);  
+    		 try {
+    			post.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
+    			
+    			HttpClient client=new DefaultHttpClient();  
+                HttpResponse response=client.execute(post);  
+                if(response.getStatusLine().getStatusCode()==200){  
+                   //content=EntityUtils.toString(response.getEntity());    
+                   content=response.getFirstHeader("Set-Cookie").getValue();
+
+                   
+                } else{
+                	content="null";
+                	
+                }
+    		} catch (ClientProtocolException e) {  
+                e.printStackTrace();  
+           } catch (IOException e) {  
+                e.printStackTrace();  
+           }  
+    		
+    		return content;
+    	}
+    	
+    	@Override
+    	protected void onPostExecute(String result)
+        {
+    		finishLogin(result);
+        }
+    	
+    }
+
+
+    class logOut extends AsyncTask<String,Void, String>
+    {
+    	
+    	@Override
+    	protected String doInBackground(String... arg0) {
+    		
+    		String getUrl="http://easygo.ballchen.cc/logout";
+    		String content = "null";
+    		 
+            HttpGet get=new HttpGet(getUrl);  
+    		 try {
+    			
+    			get.setHeader("cookie",arg0[0]);
+    			
+    			HttpClient client=new DefaultHttpClient();  
+                HttpResponse response=client.execute(get);  
+                
+                if(response.getStatusLine().getStatusCode()==200){  
+                    flag=true;
+                } else{
+                	flag=false;
+                }
+                
+                content=String.valueOf(response.getStatusLine().getStatusCode());
+    		} catch (ClientProtocolException e) {  
+                e.printStackTrace();  
+           } catch (IOException e) {  
+                e.printStackTrace();  
+           }  
+    		
+    		
+    		return content;
+    	}
+    	
+    	@Override
+    	protected void onPostExecute(String result)
+        {
+    		finishLogout(flag,result);
+        }
+    	
+    	private boolean flag=false;
+    }
    
 }  
 

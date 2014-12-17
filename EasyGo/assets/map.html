@@ -96,7 +96,6 @@ var markerFlag=[];
 						ep=results1[0].geometry.location;
 						
 						var rad0;
-						var center0;
 						var lt;
 						var lg;
 						
@@ -105,8 +104,7 @@ var markerFlag=[];
 
 								    lt=sp.lat();
 									lg=sp.lng();
-									center0=lt+','+lg;
-								    rad0=1;
+								    rad0=2;
 
 						}else{
 
@@ -116,12 +114,11 @@ var markerFlag=[];
 									   var step3=google.maps.geometry.spherical.computeDistanceBetween(sp,ep)/1000/2;
 									   if(step3<1){step3=1;}
 
-								       center0=lt+','+lg;
 								       rad0=step3;
 						}
 						
 						
-						window.android.frpReturn(center0,rad0,lt,lg,sp.lat()+','+sp.lng(),ep.lat()+','+ep.lng());
+						window.android.frpReturn(rad0,lt,lg,sp.lat()+','+sp.lng(),ep.lat()+','+ep.lng());
 						
 						
 					} else {
