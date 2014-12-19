@@ -106,26 +106,6 @@ class DeleteRoutes extends HttpWork
 }
 
 
-class DataGroupStringListX3 extends DataGroupOriginal{
-	
-	DataGroupStringListX3(){
-		super();
-		init3rd();
-	}
-	
-	public void init(){
-		super.init();
-		init3rd();
-	} 
-	
-	public void init3rd(){
-		ID=new ArrayList<String>();
-	}
-
-	public List<String> ID;
-}
-
-
 public class History extends Activity implements GetAuCallback,DeleteRoutesCallback,GetRoutesCallback{
 	
 	 private String cookie;
@@ -168,8 +148,8 @@ public class History extends Activity implements GetAuCallback,DeleteRoutesCallb
 	 }
 	 
 	 public void showHistoryRoutes(String result){
-
-			try{
+	
+		 try{
 				final JSONArray dataAry= new JSONArray(result);
 			    int i;
 			
@@ -288,5 +268,24 @@ public class History extends Activity implements GetAuCallback,DeleteRoutesCallb
 			init();
 		}
 		
+	}
+	
+	private class DataGroupStringListX3 extends DataGroupOriginal{
+		
+		DataGroupStringListX3(){
+			super();
+			init3rd();
+		}
+		
+		public void init(){
+			super.init();
+			init3rd();
+		} 
+		
+		public void init3rd(){
+			ID=new ArrayList<String>();
+		}
+
+		public List<String> ID;
 	}
 }

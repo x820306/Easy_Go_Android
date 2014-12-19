@@ -41,7 +41,7 @@ var markerFlag=[];
      			 if (status == google.maps.GeocoderStatus.OK) {
         			if (results[0]) {
 						var temp=results[0].formatted_address;
-						window.android.setStartLocation(temp);
+						window.FRPM.setStartLocation(temp);
 					}
                  } else {
                     
@@ -56,7 +56,7 @@ var markerFlag=[];
      			 if (status == google.maps.GeocoderStatus.OK) {
         			if (results[0]) {
 						var temp=results[0].formatted_address;
-						window.android.setEndLocation(temp);
+						window.FRPM.setEndLocation(temp);
 					}
                  } else {
                     
@@ -118,7 +118,7 @@ var markerFlag=[];
 						}
 						
 						
-						window.android.frpReturn(rad0,lt,lg,sp.lat()+','+sp.lng(),ep.lat()+','+ep.lng());
+						window.FRPM.frpReturn(rad0,lt,lg,sp.lat()+','+sp.lng(),ep.lat()+','+ep.lng());
 						
 						
 					} else {
@@ -136,8 +136,8 @@ var markerFlag=[];
 		
 		for(i=0;i<ctr;i++){
 			var rec=i;
-			var loc=window.android.getRPLocation(rec);
-			var tle=window.android.getRPTitle(rec);
+			var loc=window.FRPM.getRPLocation(rec);
+			var tle=window.FRPM.getRPTitle(rec);
 			
 			var icon_w="https://chart.googleapis.com/chart?chst=d_map_pin_icon&chld=glyphish_compass|6aad32|000000";
 			var icon_t="https://chart.googleapis.com/chart?chst=d_map_pin_icon&chld=glyphish_compass|FF0000|000000";
@@ -200,7 +200,7 @@ var markerFlag=[];
   
   function myFunc(bbbd)
   {
-	  window.android.chooseByRec(bbbd);
+	  window.FRPM.chooseByRec(bbbd);
 	   setTimeout(function(){stepDisplay.close();},100);
   }
   
@@ -224,7 +224,7 @@ var markerFlag=[];
   
   function myFunc2(bbbd)
   {
-	  window.android.cancelByRec(bbbd);
+	  window.FRPM.cancelByRec(bbbd);
 	   setTimeout(function(){stepDisplay.close();},100);
   }
   
@@ -282,12 +282,12 @@ function route(ctr)
 	
 	
 	for(i=0;i<ctr;i++){
-		var localFlag=window.android.getRPChosen(i);
+		var localFlag=window.FRPM.getRPChosen(i);
 		if(localFlag==1)
 		{
-			var localLocation=window.android.getRPLocation(i);
+			var localLocation=window.FRPM.getRPLocation(i);
 			wayPnts.push(localLocation);
-			var localTitle=window.android.getRPTitle(i);
+			var localTitle=window.FRPM.getRPTitle(i);
 			wptTitle.push(localTitle);
 		}
 	}
@@ -417,7 +417,7 @@ function route(ctr)
 			  totalDuration/=60;
 			  totalDuration=formatFloat(totalDuration,1);
 			  
-			  window.android.routeReturn(totalDistance,totalDuration);
+			  window.RM.routeReturn(totalDistance,totalDuration);
 			  
 		  }
 	});
@@ -480,9 +480,9 @@ function routeHis(ctr)
 	
 	
 	for(i=0;i<ctr;i++){
-			var localLocation=window.android.getRPLocationHis(i);
+			var localLocation=window.AM.getRPLocationHis(i);
 			wayPnts.push(localLocation);
-			var localTitle=window.android.getRPTitleHis(i);
+			var localTitle=window.AM.getRPTitleHis(i);
 			wptTitle.push(localTitle);
 	}
 	
@@ -624,7 +624,7 @@ function routeHis(ctr)
 			  totalDuration/=60;
 			  totalDuration=formatFloat(totalDuration,1);
 			  
-			  window.android.routeHisReturn(totalDistance,totalDuration);
+			  window.RM.routeHisReturn(totalDistance,totalDuration);
 			  
 		  }
 	});
