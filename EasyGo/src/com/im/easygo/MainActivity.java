@@ -567,9 +567,30 @@ class DataGroupOriginal{
 	public int size(){
 		return name.size();
 	}
+	
+	public void valueSet(int index,String input){
+		value.set(index,input);
+	}
+	
+	public String valueGet(int index){
+		return value.get(index);
+	}
+	
+	public void nameSet(int index,String input){
+		name.set(index,input);
+	}
+	
+	public String nameGet(int index){
+		return name.get(index);
+	}
+	
+	public void add(String nameInput,String valueInput){
+		name.add(nameInput);
+		value.add(valueInput);
+	}
 
-	public List<String> value;
-	public List<String> name;
+	private List<String> value;
+	private List<String> name;
 
 }
 
@@ -614,41 +635,58 @@ class DataGroupChosen extends DataGroupOriginal{
 		}
 		chosenNumber=0;
 	}
+	
+	public int howManyChosen(){
+		return chosenNumber;
+	}
+	
+	public void chosenSet(int index,Integer input){
+		chosen.set(index,input);
+	}
+	
+	public Integer chosenGet(int index){
+		return chosen.get(index);
+	}
+	
+	public void add(String nameInput,String valueInput){
+		super.add(nameInput,valueInput);
+		chosen.add(0);
+	}
 
-	public List<Integer> chosen;
-	public int chosenNumber;
+	private List<Integer> chosen;
+	private int chosenNumber;
 }
 
 class Category extends DataGroupChosen{
 
 	Category(){
 		super();
-    	
-    	name.add("商務"); value.add("Local business"); chosen.add(0);
-    	name.add("餐廳"); value.add("Restaurant/cafe"); chosen.add(0);
-    	name.add("旅館"); value.add("Hotel"); chosen.add(0);
-    	name.add("休閒"); value.add("Travel/leisure"); chosen.add(0);
-    	name.add("學校"); value.add("School"); chosen.add(0);
-    	name.add("地標"); value.add("Landmark"); chosen.add(0);
-    	name.add("觀光"); value.add("Tours/sightseeing"); chosen.add(0);
-    	name.add("娛樂"); value.add("Arts/entertainment/nightlife"); chosen.add(0);
-    	name.add("購物"); value.add("Shopping/retail"); chosen.add(0);
-    	name.add("美容"); value.add("Health/beauty"); chosen.add(0);
-    	name.add("食品"); value.add("Food/grocery"); chosen.add(0);
-    	name.add("飲料"); value.add("Food/beverages"); chosen.add(0);
-    	name.add("服飾"); value.add("Clothing"); chosen.add(0);
-    	name.add("宗教"); value.add("Church/religious organization"); chosen.add(0);
-    	name.add("博物館"); value.add("Museum/art gallery"); chosen.add(0);
-    	name.add("體育館"); value.add("Sports venue"); chosen.add(0);
-    	name.add("酒吧"); value.add("Bar"); chosen.add(0);
-    	name.add("俱樂部"); value.add("Club"); chosen.add(0);
-    	name.add("圖書館"); value.add("Library"); chosen.add(0);
-    	name.add("零售店"); value.add("Retail and consumer merchandise"); chosen.add(0);
-    	name.add("書店"); value.add("Book store"); chosen.add(0);
-    	name.add("政府"); value.add("Government organization"); chosen.add(0);
-    	name.add("電影院"); value.add("Movie theater"); chosen.add(0);
-    	name.add("珠寶"); value.add("Jewelry/watches"); chosen.add(0);
-    	name.add("院所"); value.add("Hospital/clinic"); chosen.add(0);
+    
+		super.add("商務","Local business");
+    	super.add("餐廳","Restaurant/cafe");
+    	super.add("旅館","Hotel");
+    	super.add("休閒","Travel/leisure");
+    	super.add("學校","School");
+    	super.add("地標","Landmark");
+    	super.add("觀光","Tours/sightseeing");
+    	super.add("娛樂","Arts/entertainment/nightlife");
+    	super.add("購物","Shopping/retail");
+    	super.add("美容","Health/beauty");
+    	super.add("食品","Food/grocery");
+    	super.add("飲料","Food/beverages");
+    	super.add("服飾","Clothing");
+    	super.add("宗教","Church/religious organization");
+    	super.add("博物館","Museum/art gallery");
+    	super.add("體育館","Sports venue");
+    	super.add("酒吧","Bar");
+    	super.add("俱樂部","Club");
+    	super.add("圖書館","Library");
+    	super.add("零售店","Retail and consumer merchandise");
+    	super.add("書店","Book store");
+    	super.add("政府","Government organization");
+    	super.add("電影院","Movie theater");
+    	super.add("珠寶","Jewelry/watches");
+    	super.add("院所","Hospital/clinic");
 	}
 }
 
@@ -731,6 +769,14 @@ class GetLocationFromPhone{
     	Lmgr.removeUpdates(locationListener);
     	runningFlag=false;
 	}
+    
+    public boolean ifRunning(){
+    	if(runningFlag){
+    		return true;
+    	}else{
+    		return false;
+    	}
+    }
 	
 	private LocationManager Lmgr;
 	private String bestLocationProvider;
@@ -738,7 +784,7 @@ class GetLocationFromPhone{
 	private int onceRunningNumber=0;
 	private boolean OnceLoopFlag_c;
 	private GetLocationFromPhoneCallback caller_c;
-	public boolean runningFlag;
+	private boolean runningFlag;
 	
 }
 
@@ -1060,7 +1106,7 @@ public class MainActivity extends Activity {
 	    			
 	    			for(y=0;y<input.size();y++){
 	    				if(input.ifChoose(y)){
-	    					route=route+"{\"land\":\""+input.value.get(y)+"\",\"name\":\""+input.name.get(y)+"\"},";
+	    					route=route+"{\"land\":\""+input.valueGet(y)+"\",\"name\":\""+input.nameGet(y)+"\"},";
 	    				}
 	    			}
 	    			
@@ -1157,7 +1203,7 @@ public class MainActivity extends Activity {
 	    	        		String[] temp = new String[FRP.size()];
 	    	        		for(int a=0;a<FRP.size();a++)
 	    					{
-	    	        			temp[a]=FRP.name.get(a);
+	    	        			temp[a]=FRP.nameGet(a);
 	    					}
 	    	        		
 	    	        		boolean[] temp2 = new boolean[FRP.size()];
@@ -1177,7 +1223,7 @@ public class MainActivity extends Activity {
 
 	    	        						FRP.choose(whichButton);
 	    	        						
-	    	        						if(FRP.chosenNumber>=6)
+	    	        						if(FRP.howManyChosen()>=6)
 	    	        						{
 	    	        							Toast.makeText(MainActivity.this,"已達上限", 100).show();
 	    	        							dialog.cancel();
@@ -1310,8 +1356,7 @@ public class MainActivity extends Activity {
 	    							   
 	    							   if(FRP.size()==0)
 	    							   {
-	    								   FRP.value.add(qwas);
-	    								   FRP.name.add(qwas2);
+	    								   FRP.add(qwas2,qwas);
 	    								   flagy=-1;
 	    								  
 	    							   }else{
@@ -1319,7 +1364,7 @@ public class MainActivity extends Activity {
 	    								   for(iu=0;iu<FRP.size();iu++)
 	    								   {
 
-	    									   if(qwas.equals(FRP.value.get(iu)))
+	    									   if(qwas.equals(FRP.valueGet(iu)))
 	    									   {
 	    										   rdr=iu;
 	    										   flagy=1;
@@ -1329,20 +1374,18 @@ public class MainActivity extends Activity {
 	    							   
 	    							   if(flagy==0)
 	    							   {
-	    								   FRP.value.add(qwas);
-	    								   FRP.name.add(qwas2);
+	    								   FRP.add(qwas2,qwas);
 	    							   }else if(flagy==1)
 	    							   {
-	    								   FRP.name.set(rdr,FRP.name.get(rdr)+'&');
-	    								   FRP.name.set(rdr,FRP.name.get(rdr)+qwas2);
+	    								   FRP.nameSet(rdr,FRP.nameGet(rdr)+'&');
+	    								   FRP.nameSet(rdr,FRP.nameGet(rdr)+qwas2);
 	    							   }
 	    							   aryCtr++;
 	    							}	    				
 	    	    				
 	    							for(a=0;a<FRP.size();a++)
 	    							{
-	    								FRP.name.set(a,FRP.name.get(a)+"#推薦地點");
-	    								FRP.chosen.add(0);
+	    								FRP.nameSet(a,FRP.nameGet(a)+"#推薦地點");
 	    							}		
 	    	    			}
 	    	    		} catch (JSONException e) {
@@ -1408,9 +1451,7 @@ public class MainActivity extends Activity {
 	    									e.printStackTrace();
 	    								}
 	    								
-	    								FRP.name.add(tempp2+"#人氣度:"+dataAry.getJSONObject(a).getString("checkins"));
-	    								FRP.value.add(dataAry.getJSONObject(a).getString("latitude")+","+dataAry.getJSONObject(a).getString("longitude"));
-	    								FRP.chosen.add(0);
+	    								FRP.add(tempp2+"#人氣度:"+dataAry.getJSONObject(a).getString("checkins"),dataAry.getJSONObject(a).getString("latitude")+","+dataAry.getJSONObject(a).getString("longitude"));
 	    							}	
 	    							
 	    	    			}
@@ -1461,20 +1502,20 @@ public class MainActivity extends Activity {
 	       		 	@JavascriptInterface
 	       		 	public String getRPLocation(final int pos)
 	       		 	{
-	       		 		return FRP.value.get(pos);
+	       		 		return FRP.valueGet(pos);
 	     	    	
 	       		 	}
 	       		 	
 	       		 	@JavascriptInterface
 	    		    public String getRPTitle(final int pos)
 	    		    {
-	    		    	return FRP.name.get(pos);
+	    		    	return FRP.nameGet(pos);
 	    		    }
 	    		    
 	    		    @JavascriptInterface
 	    		    public int getRPChosen(final int pos)
 	    		    {	
-	    		    	return FRP.chosen.get(pos);
+	    		    	return FRP.chosenGet(pos);
 	    		    }
 	     	    
 	       		 	@JavascriptInterface
@@ -1496,7 +1537,7 @@ public class MainActivity extends Activity {
 	       		 		{
 	       		 			toaster("重複選擇囉");
 	       		 		}else{
-	       		 			if(FRP.chosenNumber<6){
+	       		 			if(FRP.howManyChosen()<6){
 	       		 				FRP.choose(Rec);
 	       		 				toaster("已選擇");
 	       		 			}else{
@@ -1538,7 +1579,7 @@ public class MainActivity extends Activity {
 	    			        		String[] temp = new String[categoryList.size()];
 	    			        		for(a=0;a<categoryList.size();a++)
 	    							{
-	    			        			temp[a]=categoryList.name.get(a);
+	    			        			temp[a]=categoryList.nameGet(a);
 	    							}
 	    			        		boolean[] temp2 = new boolean[categoryList.size()];
 	    			        		for(a=0;a<categoryList.size();a++)
@@ -1554,10 +1595,10 @@ public class MainActivity extends Activity {
 	    			        		new DialogInterface.OnMultiChoiceClickListener() {
 	    			        			public void onClick(DialogInterface dialog, int whichButton,boolean isChecked) {
 	    			        					if(isChecked) {
-	    			        						categoryList.chosen.set(whichButton,1);
+	    			        						categoryList.chosenSet(whichButton,1);
 	    			        						
 	    			        					}else {
-	    			        						categoryList.chosen.set(whichButton,0);
+	    			        						categoryList.chosenSet(whichButton,0);
 	    			        					}
 	    			        					 
 	    			        			}
@@ -1577,7 +1618,7 @@ public class MainActivity extends Activity {
 	    	        	{
 	    	        		if(categoryList.ifChoose(i))
 	    	        		{
-	    	        			categorySend.add(categoryList.value.get(i));
+	    	        			categorySend.add(categoryList.valueGet(i));
 	    	        		}
 	    	        	}	    	
 	    		    	
@@ -1622,9 +1663,9 @@ public class MainActivity extends Activity {
 	    		    		runOnUiThread(new Runnable() {
 	    			            public void run() {
 	    			            	mWebView.loadUrl("javascript:setChosenIcon("+String.valueOf(index)+")");
-	    			            	chooseRoadPointBtn.setText("已選"+num[chosenNumber]+"點");
+	    			            	chooseRoadPointBtn.setText("已選"+num[howManyChosen()]+"點");
 	    			            	
-	    			            	if(chosenNumber>=6)
+	    			            	if(howManyChosen()>=6)
 	    			            	{
 	    			            		chooseRoadPointBtn.setEnabled(false);  
 	    			            	}
@@ -1641,9 +1682,9 @@ public class MainActivity extends Activity {
 	    			            public void run() {
 	    			            	mWebView.loadUrl("javascript:setOrgIcon("+String.valueOf(index)+")");
 	    			            	
-	    			            	if(chosenNumber>0){
-	    	    						chooseRoadPointBtn.setText("已選"+num[chosenNumber]+"點");
-	    	    					}else if(FRP.chosenNumber==0){
+	    			            	if(howManyChosen()>0){
+	    	    						chooseRoadPointBtn.setText("已選"+num[howManyChosen()]+"點");
+	    	    					}else{
 	    	    						chooseRoadPointBtn.setText("選擇路點");
 	    	    					}
 	    			            	
@@ -1878,8 +1919,7 @@ public class MainActivity extends Activity {
 	    						int i;
 	    					
 	    						for(i=0;i<dataAry.length();i++){
-	    							savedRoadPoint.value.add(dataAry.getJSONObject(i).getString("land"));
-	    							savedRoadPoint.name.add(dataAry.getJSONObject(i).getString("name"));
+	    							savedRoadPoint.add(dataAry.getJSONObject(i).getString("name"),dataAry.getJSONObject(i).getString("land"));
 	    						}
 	    						
 	    						mWebView.loadUrl("javascript:routeHis("+savedRoadPoint.size()+")");
@@ -1903,14 +1943,14 @@ public class MainActivity extends Activity {
 	    			 @JavascriptInterface
 	    			 public String getRPLocationHis(final int pos)
 	    			 {
-	    			    return savedRoadPoint.value.get(pos);
+	    			    return savedRoadPoint.valueGet(pos);
 	    			    	
 	    			 }
 	    			    
 	    			 @JavascriptInterface
 	    			 public String getRPTitleHis(final int pos)
 	    			 {
-	    			    return savedRoadPoint.name.get(pos);
+	    			    return savedRoadPoint.nameGet(pos);
 	    			 }
 	    			
 	    			private Bundle bundle;

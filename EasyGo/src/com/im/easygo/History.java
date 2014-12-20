@@ -158,16 +158,14 @@ public class History extends Activity implements GetAuCallback,DeleteRoutesCallb
 					int k=i+1;
 					final int g=i;
 		
-					savedRoutes.name.add("路線"+k);
-					savedRoutes.value.add(dataAry.getJSONObject(g).getString("path"));
-					savedRoutes.ID.add(dataAry.getJSONObject(g).getString("id"));
+					savedRoutes.add("路線"+k,dataAry.getJSONObject(g).getString("path"),dataAry.getJSONObject(g).getString("id"));
 				}
 				
 				int a;
 				String[] tempSarray = new String[savedRoutes.size()];
 				for(a=0;a<savedRoutes.size();a++)
 				{
-					tempSarray[a]=savedRoutes.name.get(a);
+					tempSarray[a]=savedRoutes.nameGet(a);
 				}
 				
 				listAdapter = new ArrayAdapter<String>(History.this,android.R.layout.simple_list_item_1,tempSarray);
@@ -180,7 +178,7 @@ public class History extends Activity implements GetAuCallback,DeleteRoutesCallb
 		        		
 		        		Bundle bundle = new Bundle();
 		                bundle.putString("cookie", cookie);
-		                bundle.putString("savedPath",savedRoutes.value.get(position));
+		                bundle.putString("savedPath",savedRoutes.valueGet(position));
 						
 		                intent.putExtras(bundle);
 		        	
@@ -195,7 +193,7 @@ public class History extends Activity implements GetAuCallback,DeleteRoutesCallb
 							View arg1, final int position, long arg3) {
 						new AlertDialog.Builder(History.this)
 			            
-			            .setMessage("您確定要刪除"+savedRoutes.name.get(position)+"嗎?")
+			            .setMessage("您確定要刪除"+savedRoutes.nameGet(position)+"嗎?")
 			            .setPositiveButton("是", new DialogInterface.OnClickListener() {
 			                   
 			                @Override
@@ -285,7 +283,20 @@ public class History extends Activity implements GetAuCallback,DeleteRoutesCallb
 		public void init3rd(){
 			ID=new ArrayList<String>();
 		}
+		
+		public void IDset(int index,String input){
+			ID.set(index,input);
+		}
+		
+		public String IDget(int index){
+			return ID.get(index);
+		}
+		
+		public void add(String nameInput,String valueInput,String IDinput){
+			super.add(nameInput,valueInput);
+			ID.add(IDinput);
+		}
 
-		public List<String> ID;
+		private List<String> ID;
 	}
 }
