@@ -758,9 +758,11 @@ class TimeWatch{
 	}
 	
 	public void stop(){
-		timer.cancel();
-		timer.purge();
-		timerRunningFlag=false;
+		if(timerRunningFlag){
+			timer.cancel();
+			timer.purge();
+			timerRunningFlag=false;
+		}
 		setTotalSec0();
 	}
 	
@@ -770,7 +772,15 @@ class TimeWatch{
 		timerRunningFlag=false;
 	}
 	
-	public void setTotalSec0(){
+	public boolean ifRunning(){
+		if(timerRunningFlag){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	private void setTotalSec0(){
 		totalSec=0;
 	}
 	
@@ -824,7 +834,7 @@ class TimeWatch{
 	
 	private int totalSec;
 	private Timer timer;
-	public boolean timerRunningFlag;
+	private boolean timerRunningFlag;
 	private TimeWatchCallback caller_c; 
 }
 
@@ -957,11 +967,9 @@ public class MainActivity extends Activity {
 	 	    	{
 	 	    		runOnUiThread(new Runnable() {
 	 		            public void run() {
-	 		            	if(WLM.watchAndLocRunning()){
-	 		            		WLM.ctrl("STOP");
-	 		            	}
-	 		            	WLM.killBottomInfo();
-	 		            
+	 		            	
+	 		            	WLM.ctrl("STOP");
+	 		            	
 	 		            	mWebView.loadUrl("javascript:route("+FRPM.FRP.size()+")");
 	 		            	
 	 		           }
@@ -973,10 +981,8 @@ public class MainActivity extends Activity {
 	 	   public void routeKiller(){
 		    	runOnUiThread(new Runnable() {
 		            public void run() {
-		            	if(WLM.watchAndLocRunning()){
-		            		WLM.ctrl("STOP");
-		            	}
-		            	WLM.killBottomInfo();
+		   
+		            	WLM.ctrl("STOP");
 		            	
 		            	FRPM.FRP.cancelChosenAll();
 		            	
@@ -994,7 +1000,7 @@ public class MainActivity extends Activity {
 		    {
 		    	cancelflag=2;
 		    	
-		    	WLM.setBottomInfo(distance,duration);
+		    	WLM.ctrl("INIT",distance,duration);
 		    	
 		    	runOnUiThread(new Runnable() {
 		    		public void run() {
@@ -1011,7 +1017,7 @@ public class MainActivity extends Activity {
 		    {
 		    	cancelflag=3;
 		    	
-		    	WLM.setBottomInfo(distance,duration);
+		    	WLM.ctrl("INIT",distance,duration);
 		     }
 		    
 	 	    
@@ -1712,19 +1718,11 @@ public class MainActivity extends Activity {
 	 	    	}
 	 	    	
 	 	    	public boolean watchAndLocRunning(){
-	 	    		if(timewatch.timerRunningFlag){
+	 	    		if(timewatch.ifRunning()){
 	 	    			return true;
 	 	    		}else{
 	 	    			return false;
 	 	    		}
-	 	    	}
-	 	    	
-	 	    	public void getStartLocOnce(){
-	 	    		once.startListenerSE(1);
-	 	    	}
-	 	    	
-	 	    	public void getEndLocOnce(){
-	 	    		once.startListenerSE(2);
 	 	    	}
 	 	    	
 	 	    	public void ctrl(String order){
@@ -1732,13 +1730,22 @@ public class MainActivity extends Activity {
 	 		    		timewatch.pause();
 	 		    		stopPauseHelper();
 	 		    	}else if(order.equals("STOP")){
+	 		    		
+	 		    		if(watchAndLocRunning()){
+	 		    			stopPauseHelper();
+	 		    		}
 	 		    		timewatch.stop();
-	 		    		stopPauseHelper();
+	 		    		killBottomInfo();
 	 		    		
 	 		    	}else if(order.equals("START")){
 	 		    		timewatch.start();
 	 		    		startHelper();
-	 		    		
+	 		    	}
+	 	    	}
+	 	    	
+	 	    	public void ctrl(String order,final String distance,final String duration){
+	 	    		if(order.equals("INIT")){
+	 	    			setBottomInfo(distance,duration);
 	 		    	}
 	 	    	}
 	 	    	
@@ -1753,7 +1760,7 @@ public class MainActivity extends Activity {
 	     			timerBtn.setText("Stop");
 	 	    	}
 	 	    	
-	 	        public void setBottomInfo(final String distance,final String duration){
+	 	        private void setBottomInfo(final String distance,final String duration){
 	 	 	    	
 	 	     		runOnUiThread(new Runnable() {
 	 	 	    		public void run() {
@@ -1764,7 +1771,7 @@ public class MainActivity extends Activity {
 	 	            });
 	 	 	    }
 	 	        
-	             public void killBottomInfo(){
+	             private void killBottomInfo(){
 	 	 	    	
 	 	     		runOnUiThread(new Runnable() {
 	 	 	    		public void run() {
@@ -1774,6 +1781,14 @@ public class MainActivity extends Activity {
 	 	             	}
 	 	            });
 	 	 	    }
+	             
+	            private void getStartLocOnce(){
+		 	    	once.startListenerSE(1);
+		 	    }
+		 	    	
+		 	    private void getEndLocOnce(){
+		 	    	once.startListenerSE(2);
+		 	    }
 	             
 	             @Override
 	     		public void getLatLonONCE(String lat, String lon,int number) {
